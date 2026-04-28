@@ -1,0 +1,13 @@
+# Dependency directories
+node_modules/
+
+# OS metadata files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+
+# Local data (if any)
+*.log

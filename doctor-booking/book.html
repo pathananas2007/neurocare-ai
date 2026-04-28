@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Book an appointment with your selected doctor at Wellness Forever.">
+    <title>Wellness Forever | Book Appointment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="mainNav">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">⚕️ Wellness Forever</a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="appointments.html">My Appointments</a></li>
+                <li><a href="admin.html">Admin</a></li>
+                <li id="nav-auth-item">
+                    <a href="login.html" class="btn btn-primary btn-sm" id="nav-auth-btn">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="booking-container">
+            <div class="form-card">
+                <!-- Step Indicator -->
+                <div class="steps">
+                    <div class="step active" id="step1-dot"><span>1</span><small>Doctor</small></div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step2-dot"><span>2</span><small>Details</small></div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step3-dot"><span>3</span><small>Done</small></div>
+                </div>
+
+                <h2 class="form-title">Book Appointment</h2>
+
+                <!-- Error: No doctor selected -->
+                <div id="error-message" class="alert error hidden">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>No doctor selected!</strong>
+                        <p>Please go back and choose a doctor first.</p>
+                        <a href="index.html" class="btn btn-primary mt-2">← Back to Home</a>
+                    </div>
+                </div>
+
+                <!-- Success -->
+                <div id="success-message" class="alert success hidden">
+                    <div class="success-icon">🎉</div>
+                    <h3>Appointment Confirmed!</h3>
+                    <p>Your appointment has been successfully booked. You'll find it in My Appointments.</p>
+                    <a href="appointments.html" class="btn btn-primary mt-2">View My Appointments</a>
+                    <a href="index.html" class="btn btn-outline mt-2">Book Another</a>
+                </div>
+
+                <!-- Doctor Info Preview -->
+                <div id="selected-doctor-info" class="selected-doctor-info hidden"></div>
+
+                <!-- Booking Form -->
+                <form id="booking-form" class="booking-form hidden" novalidate>
+
+                    <div class="form-group">
+                        <label for="patientName">👤 Patient Name</label>
+                        <input type="text" id="patientName" placeholder="Enter your full name" autocomplete="name" required>
+                        <span class="field-error" id="err-name"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patientPhone">📞 Phone Number</label>
+                        <input type="tel" id="patientPhone" placeholder="Enter 10-digit mobile number" maxlength="10" autocomplete="tel" required>
+                        <span class="field-error" id="err-phone"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patientEmail">📧 Email Address</label>
+                        <input type="email" id="patientEmail" placeholder="you@example.com" autocomplete="email">
+                        <span class="field-error" id="err-email"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointmentDate">📅 Appointment Date</label>
+                            <input type="date" id="appointmentDate" required>
+                            <span class="field-error" id="err-date"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentTime">🕐 Time Slot</label>
+                            <select id="appointmentTime" required>
+                                <option value="" disabled selected>Select a slot</option>
+                            </select>
+                            <span class="field-error" id="err-time"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reason">📝 Reason for Visit <span class="optional">(optional)</span></label>
+                        <textarea id="reason" rows="3" placeholder="Brief description of your symptoms…"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                        <span class="btn-text">✅ Confirm Booking</span>
+                        <span class="btn-spinner hidden"></span>
+                    </button>
+                    <a href="index.html" class="btn-cancel text-center">← Cancel, go back</a>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>© 2024 Wellness Forever. All rights reserved. Created by Bhushan and Shekhar</p>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavForAuth();
+            initBookingPage();
+        });
+    </script>
+</body>
+</html>

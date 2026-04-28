@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin panel – View and manage all appointments at Wellness Forever.">
+    <title>Wellness Forever | Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+
+    <nav class="navbar" id="mainNav">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">⚕️ Wellness Forever</a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="appointments.html">My Appointments</a></li>
+                <li><a href="admin.html" class="active">Admin</a></li>
+                <li id="nav-auth-item">
+                    <a href="login.html" class="btn btn-primary btn-sm" id="nav-auth-btn">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <header class="page-header">
+            <div>
+                <h1>🛡️ Admin Panel</h1>
+                <p>View and manage all system appointments.</p>
+            </div>
+            <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="admin-stats" id="adminStats">
+            <div class="stat-card"><span class="stat-num" id="statTotal">0</span><span>Total Bookings</span></div>
+            <div class="stat-card"><span class="stat-num" id="statUpcoming">0</span><span>Upcoming</span></div>
+            <div class="stat-card"><span class="stat-num" id="statPast">0</span><span>Past</span></div>
+            <div class="stat-card"><span class="stat-num" id="statUnique">0</span><span>Unique Patients</span></div>
+        </div>
+
+        <!-- Search -->
+        <div class="admin-search-row">
+            <div class="search-wrapper" style="max-width:400px;">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="adminSearch" placeholder="Search by patient or doctor…">
+            </div>
+            <select id="adminSpecFilter">
+                <option value="">All Specializations</option>
+            </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+            <table class="admin-table" id="adminTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Patient</th>
+                        <th>Phone</th>
+                        <th>Doctor</th>
+                        <th>Specialization</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody">
+                </tbody>
+            </table>
+            <div id="adminEmpty" class="empty-state hidden">
+                <div class="empty-icon">🗂️</div>
+                <h3>No appointments in the system</h3>
+                <p>When patients book appointments, they will appear here.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>© 2024 Wellness Forever. All rights reserved. Created by Bhushan and Shekhar</p>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal-overlay hidden" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-icon">🗑️</div>
+            <h3>Delete Appointment?</h3>
+            <p>This will permanently remove the appointment from the system.</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="modalCancelBtn">No, Keep It</button>
+                <button class="btn btn-danger" id="modalConfirmBtn">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavForAuth();
+            loadAdminPanel();
+        });
+    </script>
+</body>
+</html>

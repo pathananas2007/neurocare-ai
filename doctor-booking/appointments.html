@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View and manage your booked doctor appointments at Wellness Forever.">
+    <title>Wellness Forever | My Appointments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <nav class="navbar" id="mainNav">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">⚕️ Wellness Forever</a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="appointments.html" class="active">My Appointments</a></li>
+                <li><a href="admin.html">Admin</a></li>
+                <li id="nav-auth-item">
+                    <a href="login.html" class="btn btn-primary btn-sm" id="nav-auth-btn">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <header class="page-header">
+            <div>
+                <h1>📋 My Appointments</h1>
+                <p>Track and manage all your upcoming healthcare visits.</p>
+            </div>
+            <a href="index.html" class="btn btn-primary">+ Book New</a>
+        </header>
+
+        <!-- Filter row -->
+        <div class="apt-filter-row">
+            <button class="filter-pill active" data-filter="all">All</button>
+            <button class="filter-pill" data-filter="upcoming">Upcoming</button>
+            <button class="filter-pill" data-filter="past">Past</button>
+        </div>
+
+        <div id="appointments-list" class="appointments-grid"></div>
+
+        <div id="no-appointments" class="empty-state hidden">
+            <div class="empty-icon">📅</div>
+            <h3>No appointments yet</h3>
+            <p>You don't have any booked appointments. Find a doctor and book your first consultation!</p>
+            <a href="index.html" class="btn btn-primary mt-2">Find a Doctor</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>© 2024 Wellness Forever. All rights reserved. Created by Bhushan and Shekhar</p>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Confirm Dialog -->
+    <div class="modal-overlay hidden" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-icon">🗑️</div>
+            <h3>Cancel Appointment?</h3>
+            <p>This action cannot be undone. Are you sure you want to cancel this appointment?</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="modalCancelBtn">No, Keep It</button>
+                <button class="btn btn-danger" id="modalConfirmBtn">Yes, Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavForAuth();
+            loadAppointments();
+        });
+    </script>
+</body>
+</html>
