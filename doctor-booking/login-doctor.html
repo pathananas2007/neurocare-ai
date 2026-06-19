@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Forever | Doctor Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-body">
+
+    <div class="auth-wrapper">
+        <!-- Left decorative panel -->
+        <div class="auth-left doctor-auth-left">
+            <a href="login.html" class="logo auth-logo">⚕️ Wellness Forever</a>
+            <div class="auth-role-badge">👨‍⚕️ Doctor Portal</div>
+            <h2>Manage your practice, your way.</h2>
+            <p>View all your appointments, update your availability and keep your profile up to date.</p>
+            <div class="auth-features">
+                <div class="auth-feat">📋 View all your appointments</div>
+                <div class="auth-feat">🕐 Manage available slots</div>
+                <div class="auth-feat">✏️ Update your profile & fee</div>
+                <div class="auth-feat">📊 Patient statistics</div>
+            </div>
+            <a href="login.html" class="auth-back-link">← Switch role</a>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="auth-right">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+                <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Register</button>
+            </div>
+
+            <!-- LOGIN -->
+            <form id="loginForm" class="auth-form" novalidate>
+                <h3>Doctor Login 👨‍⚕️</h3>
+                <p class="auth-subtitle">Sign in to your doctor dashboard</p>
+
+                <div class="form-group">
+                    <label for="loginEmail">📧 Email</label>
+                    <input type="email" id="loginEmail" placeholder="doctor@example.com" autocomplete="email" required>
+                    <span class="field-error" id="login-err-email"></span>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">🔒 Password</label>
+                    <div class="password-wrap">
+                        <input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pw" onclick="togglePw('loginPassword',this)">👁️</button>
+                    </div>
+                    <span class="field-error" id="login-err-pw"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Login →</button>
+                <p class="auth-switch">New doctor? <a href="#" onclick="switchTab('signup')">Register here</a></p>
+            </form>
+
+            <!-- REGISTER -->
+            <form id="signupForm" class="auth-form hidden" novalidate>
+                <h3>Doctor Registration 🩺</h3>
+                <p class="auth-subtitle">Create your doctor account on Wellness Forever</p>
+
+                <div class="form-group">
+                    <label for="signupName">👤 Full Name</label>
+                    <input type="text" id="signupName" placeholder="Dr. Your Name" autocomplete="name" required>
+                    <span class="field-error" id="signup-err-name"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">📧 Email</label>
+                    <input type="email" id="signupEmail" placeholder="doctor@example.com" autocomplete="email" required>
+                    <span class="field-error" id="signup-err-email"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">🔒 Password</label>
+                    <div class="password-wrap">
+                        <input type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password" required>
+                        <button type="button" class="toggle-pw" onclick="togglePw('signupPassword',this)">👁️</button>
+                    </div>
+                    <span class="field-error" id="signup-err-pw"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signupPhone">📞 Phone Number</label>
+                    <input type="tel" id="signupPhone" placeholder="10-digit number" maxlength="10" autocomplete="tel" required>
+                    <span class="field-error" id="signup-err-phone"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Register →</button>
+                <p class="auth-switch">Already registered? <a href="#" onclick="switchTab('login')">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getLoggedInUser();
+            if (user && user.role === 'doctor') { window.location.href = 'doctor-dashboard.html'; return; }
+            document.getElementById('loginForm').addEventListener('submit', doLogin);
+            document.getElementById('signupForm').addEventListener('submit', doSignup);
+        });
+
+        function switchTab(tab) {
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
+            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+            document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+        }
+
+        function togglePw(id, btn) {
+            const el = document.getElementById(id);
+            el.type = el.type === 'password' ? 'text' : 'password';
+            btn.textContent = el.type === 'password' ? '👁️' : '🙈';
+        }
+
+        async function doLogin(e) {
+            e.preventDefault();
+            clearErrors(['login-err-email','login-err-pw']);
+            const email    = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            let ok = true;
+            if (!email || !isValidEmail(email)) { showError('login-err-email','Enter a valid email.'); ok=false; }
+            if (!password)                       { showError('login-err-pw','Password is required.'); ok=false; }
+            if (!ok) return;
+
+            const btn = e.submitter;
+            if (btn) { btn.disabled = true; btn.textContent = 'Logging in…'; }
+
+            const res = await apiCall('/auth/login', { method:'POST', body: JSON.stringify({ email, password }) });
+
+            if (btn) { btn.disabled = false; btn.textContent = 'Login →'; }
+
+            if (!res.ok) { showError('login-err-pw', res.message || 'Incorrect email or password.'); return; }
+
+            if (res.data.role !== 'doctor') {
+                showError('login-err-pw', 'No doctor account found with these credentials.');
+                return;
+            }
+
+            setSession(res.data);
+            showToast(`Welcome, Dr. ${res.data.name.split(' ').pop()}! 👨‍⚕️`, 'success');
+            setTimeout(() => window.location.href = 'doctor-dashboard.html', 900);
+        }
+
+        async function doSignup(e) {
+            e.preventDefault();
+            clearErrors(['signup-err-name','signup-err-email','signup-err-pw','signup-err-phone']);
+            const name     = document.getElementById('signupName').value.trim();
+            const email    = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const phone    = document.getElementById('signupPhone').value.trim();
+            let ok = true;
+            if (!name || name.length < 2)      { showError('signup-err-name','Enter full name (min 2 chars).'); ok=false; }
+            if (!email || !isValidEmail(email)) { showError('signup-err-email','Enter a valid email.'); ok=false; }
+            if (!password || password.length<6) { showError('signup-err-pw','Password min 6 characters.'); ok=false; }
+            if (!phone || !isValidPhone(phone)) { showError('signup-err-phone','Enter a valid 10-digit phone.'); ok=false; }
+            if (!ok) return;
+
+            const btn = e.submitter;
+            if (btn) { btn.disabled = true; btn.textContent = 'Registering…'; }
+
+            // Register via API — role defaults to 'patient', so we use a custom endpoint note:
+            // The backend /register only creates patients. For doctors, admin must assign role.
+            // We register as patient first then the admin can promote, OR we use the same endpoint.
+            const res = await apiCall('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ name, email, password, phone, role: 'doctor' })
+            });
+
+            if (btn) { btn.disabled = false; btn.textContent = 'Register →'; }
+
+            if (!res.ok) { showError('signup-err-email', res.message || 'Registration failed.'); return; }
+
+            // Note: role is set to 'patient' by default. Admin needs to set role='doctor' in the DB.
+            // For now, set session and redirect to dashboard — role check will show access denied.
+            setSession({ ...res.data, role: 'doctor' });
+            showToast(`Registered! Ask admin to activate your doctor account. 🩺`, 'success');
+            setTimeout(() => window.location.href = 'doctor-dashboard.html', 1200);
+        }
+    </script>
+</body>
+</html>

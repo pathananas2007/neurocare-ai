@@ -1,36 +1,64 @@
 /* ============================================================
-   auth.js – LocalStorage-based Authentication
+   auth.js – API-backed Authentication
+   All data goes to MongoDB via the Express backend.
+   LocalStorage is only used for session (JWT token + user info).
    ============================================================ */
 
-const USERS_KEY       = 'wf_users';
-const SESSION_KEY     = 'wf_session';
+const API_BASE    = 'http://localhost:5000/api';
+const SESSION_KEY = 'wf_session';
 
-/* ── Helpers ── */
+/* ══════════════════════════════════════════════════════════
+   API HELPER
+══════════════════════════════════════════════════════════ */
 
-function getUsers() {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+/**
+ * Central fetch wrapper.
+ * Automatically attaches JWT token and parses JSON.
+ * Returns { ok, data, message } — never throws.
+ */
+async function apiCall(endpoint, options = {}) {
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    try {
+        const res  = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+        const json = await res.json();
+        return { ok: res.ok, status: res.status, data: json.data, message: json.message || '' };
+    } catch (err) {
+        return { ok: false, status: 0, data: null, message: 'Cannot connect to server. Make sure the backend is running on http://localhost:5000' };
+    }
 }
 
-function saveUsers(users) {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+/* ══════════════════════════════════════════════════════════
+   SESSION HELPERS
+══════════════════════════════════════════════════════════ */
+
+function getToken() {
+    const session = localStorage.getItem(SESSION_KEY);
+    return session ? JSON.parse(session).token : null;
 }
 
 function getLoggedInUser() {
     const session = localStorage.getItem(SESSION_KEY);
-    return session ? JSON.parse(session) : null;
+    if (!session) return null;
+    const data = JSON.parse(session);
+    // Return user without token field for safety
+    const { token: _t, ...user } = data;
+    return user;
 }
 
-function setSession(user) {
-    // Don't store password in session
-    const { password: _pw, ...safeUser } = user;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(safeUser));
+function setSession(userData) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(userData));
 }
 
 function clearSession() {
     localStorage.removeItem(SESSION_KEY);
 }
 
-/* ── Toast Utility (shared across pages) ── */
+/* ══════════════════════════════════════════════════════════
+   TOAST UTILITY (shared across pages)
+══════════════════════════════════════════════════════════ */
 
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
@@ -44,28 +72,51 @@ function showToast(message, type = 'success') {
     toast.appendChild(text);
     toast.className = `toast show ${type === 'success' ? 'success-toast' : 'error-toast'}`;
     clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3200);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 3200);
 }
 
-/* ── Nav Update ── */
+/* ══════════════════════════════════════════════════════════
+   NAV UPDATE
+══════════════════════════════════════════════════════════ */
 
 function updateNavForAuth() {
-    const user       = getLoggedInUser();
-    const authItem   = document.getElementById('nav-auth-item');
-    const authBtn    = document.getElementById('nav-auth-btn');
+    const user    = getLoggedInUser();
+    const authItem = document.getElementById('nav-auth-item');
+    const authBtn  = document.getElementById('nav-auth-btn');
     if (!authItem || !authBtn) return;
 
+    // Hide Admin nav link for non-admins
+    const adminNavItem = document.getElementById('nav-admin-item');
+    if (adminNavItem) {
+        adminNavItem.style.display = (user && user.role === 'admin') ? '' : 'none';
+    }
+
     if (user) {
-        authBtn.textContent  = `👤 ${user.name.split(' ')[0]}`;
-        authBtn.href         = '#';
+        authBtn.textContent = `👤 ${user.name.split(' ')[0]}`;
+        authBtn.href        = '#';
         authBtn.classList.add('btn', 'btn-outline', 'btn-sm');
         authBtn.classList.remove('btn-primary');
 
-        // Add logout button
-        const existing = document.getElementById('logoutBtn');
-        if (!existing) {
+        // Role-based dashboard link
+        if (!document.getElementById('dashboardNavItem')) {
+            const dashLi   = document.createElement('li');
+            dashLi.id      = 'dashboardNavItem';
+            const dashLink = document.createElement('a');
+            if (user.role === 'doctor') {
+                dashLink.href        = 'doctor-dashboard.html';
+                dashLink.textContent = '🩺 My Dashboard';
+            } else if (user.role === 'admin') {
+                dashLink.href        = 'admin.html';
+                dashLink.textContent = '🛡️ Admin';
+            }
+            if (dashLink.href) {
+                dashLi.appendChild(dashLink);
+                authItem.insertAdjacentElement('beforebegin', dashLi);
+            }
+        }
+
+        // Logout button
+        if (!document.getElementById('logoutBtn')) {
             const logoutLi  = document.createElement('li');
             const logoutBtn = document.createElement('button');
             logoutBtn.id            = 'logoutBtn';
@@ -80,17 +131,15 @@ function updateNavForAuth() {
         authBtn.textContent = 'Login';
         authBtn.href        = 'login.html';
         authBtn.className   = 'btn btn-primary btn-sm';
-        const existing = document.getElementById('logoutBtn');
-        if (existing) existing.parentElement.remove();
+        document.getElementById('logoutBtn')?.parentElement?.remove();
+        document.getElementById('dashboardNavItem')?.remove();
     }
 
     // Hamburger toggle
     const hamburger = document.getElementById('hamburger');
     const navLinks  = document.getElementById('navLinks');
     if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('open');
-        });
+        hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
     }
 }
 
@@ -100,13 +149,12 @@ function handleLogout() {
     setTimeout(() => window.location.href = 'index.html', 900);
 }
 
-/* ── Validation Helpers ── */
+/* ══════════════════════════════════════════════════════════
+   VALIDATION HELPERS
+══════════════════════════════════════════════════════════ */
 
 function clearErrors(ids) {
-    ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = '';
-    });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; });
 }
 
 function showError(id, message) {
@@ -122,9 +170,11 @@ function isValidPhone(phone) {
     return /^\d{10}$/.test(phone.trim());
 }
 
-/* ── Login Handler ── */
+/* ══════════════════════════════════════════════════════════
+   LOGIN HANDLER  (called from login pages)
+══════════════════════════════════════════════════════════ */
 
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
     clearErrors(['login-err-email', 'login-err-pw']);
 
@@ -132,35 +182,38 @@ function handleLogin(e) {
     const password = document.getElementById('loginPassword').value;
     let valid      = true;
 
-    if (!email || !isValidEmail(email)) {
-        showError('login-err-email', 'Please enter a valid email address.');
-        valid = false;
-    }
-    if (!password) {
-        showError('login-err-pw', 'Password is required.');
-        valid = false;
-    }
+    if (!email || !isValidEmail(email)) { showError('login-err-email', 'Please enter a valid email address.'); valid = false; }
+    if (!password)                       { showError('login-err-pw',    'Password is required.');               valid = false; }
     if (!valid) return;
 
-    const users    = getUsers();
-    const found    = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+    const btn = document.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Logging in…'; }
 
-    if (!found) {
-        showError('login-err-pw', 'Incorrect email or password. Please try again.');
+    const { ok, data, message } = await apiCall('/auth/login', {
+        method: 'POST',
+        body:   JSON.stringify({ email, password })
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = 'Login →'; }
+
+    if (!ok) {
+        showError('login-err-pw', message || 'Incorrect email or password.');
         return;
     }
 
-    setSession(found);
-    showToast(`Welcome back, ${found.name.split(' ')[0]}! 🎉`, 'success');
+    setSession(data);
+    showToast(`Welcome back, ${data.name.split(' ')[0]}! 🎉`, 'success');
     setTimeout(() => {
         const redirect = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
         window.location.href = redirect;
     }, 900);
 }
 
-/* ── Signup Handler ── */
+/* ══════════════════════════════════════════════════════════
+   SIGNUP HANDLER  (called from login pages)
+══════════════════════════════════════════════════════════ */
 
-function handleSignup(e) {
+async function handleSignup(e) {
     e.preventDefault();
     clearErrors(['signup-err-name', 'signup-err-email', 'signup-err-pw', 'signup-err-phone']);
 
@@ -170,43 +223,29 @@ function handleSignup(e) {
     const phone    = document.getElementById('signupPhone').value.trim();
     let valid      = true;
 
-    if (!name || name.length < 2) {
-        showError('signup-err-name', 'Please enter your full name (min 2 chars).');
-        valid = false;
-    }
-    if (!email || !isValidEmail(email)) {
-        showError('signup-err-email', 'Please enter a valid email address.');
-        valid = false;
-    }
-    if (!password || password.length < 6) {
-        showError('signup-err-pw', 'Password must be at least 6 characters.');
-        valid = false;
-    }
-    if (!phone || !isValidPhone(phone)) {
-        showError('signup-err-phone', 'Enter a valid 10-digit phone number.');
-        valid = false;
-    }
+    if (!name || name.length < 2)       { showError('signup-err-name',  'Enter your full name (min 2 chars).'); valid = false; }
+    if (!email || !isValidEmail(email)) { showError('signup-err-email', 'Enter a valid email address.');         valid = false; }
+    if (!password || password.length<6) { showError('signup-err-pw',    'Password must be at least 6 chars.');  valid = false; }
+    if (!phone || !isValidPhone(phone)) { showError('signup-err-phone', 'Enter a valid 10-digit phone number.'); valid = false; }
     if (!valid) return;
 
-    const users    = getUsers();
-    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-        showError('signup-err-email', 'An account with this email already exists.');
+    const btn = document.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+
+    const { ok, data, message } = await apiCall('/auth/register', {
+        method: 'POST',
+        body:   JSON.stringify({ name, email, password, phone })
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
+
+    if (!ok) {
+        showError('signup-err-email', message || 'Registration failed. Please try again.');
         return;
     }
 
-    const newUser = {
-        id:        Date.now().toString(),
-        name,
-        email,
-        password,   // In a real app, NEVER store plain passwords
-        phone,
-        createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-    setSession(newUser);
-    showToast(`Account created! Welcome, ${name.split(' ')[0]}! 🚀`, 'success');
+    setSession(data);
+    showToast(`Account created! Welcome, ${data.name.split(' ')[0]}! 🚀`, 'success');
     setTimeout(() => {
         const redirect = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
         window.location.href = redirect;

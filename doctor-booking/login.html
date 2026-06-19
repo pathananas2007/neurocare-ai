@@ -3,123 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Login or Sign Up to Wellness Forever to book doctor appointments.">
-    <title>Wellness Forever | Login / Sign Up</title>
+    <title>Wellness Forever | Choose Login</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="auth-body">
 
-    <div class="auth-wrapper">
-        <!-- Decorative side -->
-        <div class="auth-left">
-            <a href="index.html" class="logo auth-logo">⚕️ Wellness Forever</a>
-            <h2>Your health journey starts here.</h2>
-            <p>Connect with top doctors, book appointments in seconds, and take control of your wellness.</p>
-            <div class="auth-features">
-                <div class="auth-feat">✅ Book in 60 seconds</div>
-                <div class="auth-feat">🔒 Secure & Private</div>
-                <div class="auth-feat">🌟 Top-rated Doctors</div>
-                <div class="auth-feat">📱 Works on all devices</div>
-            </div>
+    <div class="login-chooser-wrapper">
+        <a href="index.html" class="logo login-chooser-logo">⚕️ Wellness Forever</a>
+        <h1 class="login-chooser-title">Who are you?</h1>
+        <p class="login-chooser-sub">Choose your role to continue</p>
+
+        <div class="login-chooser-cards">
+
+            <!-- Patient -->
+            <a href="login-patient.html" class="login-role-card patient-card">
+                <div class="lrc-icon">🧑‍💼</div>
+                <h2>Patient</h2>
+                <p>Book appointments, view your history and download receipts</p>
+                <span class="lrc-btn">Login / Sign Up →</span>
+            </a>
+
+            <!-- Doctor -->
+            <a href="login-doctor.html" class="login-role-card doctor-card">
+                <div class="lrc-icon">👨‍⚕️</div>
+                <h2>Doctor</h2>
+                <p>Manage your appointments, update your profile and availability</p>
+                <span class="lrc-btn">Login / Register →</span>
+            </a>
+
+            <!-- Admin -->
+            <a href="login-admin.html" class="login-role-card admin-card">
+                <div class="lrc-icon">🛡️</div>
+                <h2>Admin</h2>
+                <p>Manage all doctors, patients and appointments in the system</p>
+                <span class="lrc-btn">Admin Login →</span>
+            </a>
+
         </div>
 
-        <!-- Form side -->
-        <div class="auth-right">
-            <!-- Tabs -->
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
-                <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
-            </div>
-
-            <!-- LOGIN FORM -->
-            <form id="loginForm" class="auth-form" novalidate>
-                <h3>Welcome back 👋</h3>
-                <p class="auth-subtitle">Sign in to manage your appointments</p>
-
-                <div class="form-group">
-                    <label for="loginEmail">📧 Email</label>
-                    <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" required>
-                    <span class="field-error" id="login-err-email"></span>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">🔒 Password</label>
-                    <div class="password-wrap">
-                        <input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password" required>
-                        <button type="button" class="toggle-pw" onclick="togglePassword('loginPassword', this)">👁️</button>
-                    </div>
-                    <span class="field-error" id="login-err-pw"></span>
-                </div>
-
-                <div class="form-group" id="loginError" class="hidden"></div>
-
-                <button type="submit" class="btn btn-primary btn-block">Login →</button>
-                <p class="auth-switch">Don't have an account? <a href="#" onclick="switchTab('signup')">Sign Up</a></p>
-            </form>
-
-            <!-- SIGNUP FORM -->
-            <form id="signupForm" class="auth-form hidden" novalidate>
-                <h3>Create Account 🚀</h3>
-                <p class="auth-subtitle">Join thousands of patients using Wellness Forever</p>
-
-                <div class="form-group">
-                    <label for="signupName">👤 Full Name</label>
-                    <input type="text" id="signupName" placeholder="Your full name" autocomplete="name" required>
-                    <span class="field-error" id="signup-err-name"></span>
-                </div>
-                <div class="form-group">
-                    <label for="signupEmail">📧 Email</label>
-                    <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email" required>
-                    <span class="field-error" id="signup-err-email"></span>
-                </div>
-                <div class="form-group">
-                    <label for="signupPassword">🔒 Password</label>
-                    <div class="password-wrap">
-                        <input type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password" required>
-                        <button type="button" class="toggle-pw" onclick="togglePassword('signupPassword', this)">👁️</button>
-                    </div>
-                    <span class="field-error" id="signup-err-pw"></span>
-                </div>
-                <div class="form-group">
-                    <label for="signupPhone">📞 Phone Number</label>
-                    <input type="tel" id="signupPhone" placeholder="10-digit number" maxlength="10" autocomplete="tel" required>
-                    <span class="field-error" id="signup-err-phone"></span>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block">Create Account →</button>
-                <p class="auth-switch">Already have an account? <a href="#" onclick="switchTab('login')">Login</a></p>
-            </form>
-        </div>
+        <p style="margin-top:32px;color:var(--text-light);font-size:0.88rem;">
+            <a href="index.html" style="color:var(--primary);font-weight:600;text-decoration:none;">← Back to Home</a>
+        </p>
     </div>
 
     <div class="toast" id="toast"></div>
-
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // If already logged in, redirect home
-            if (getLoggedInUser()) {
-                window.location.href = 'index.html';
-            }
-
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('signupForm').addEventListener('submit', handleSignup);
+            const user = getLoggedInUser();
+            if (!user) return;
+            if (user.role === 'admin')  { window.location.href = 'admin.html'; return; }
+            if (user.role === 'doctor') { window.location.href = 'doctor-dashboard.html'; return; }
+            window.location.href = 'index.html';
         });
-
-        function switchTab(tab) {
-            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
-            document.getElementById('signupForm').classList.toggle('hidden', tab !== 'signup');
-            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-            document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
-        }
-
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
-            const isHidden = input.type === 'password';
-            input.type = isHidden ? 'text' : 'password';
-            btn.textContent = isHidden ? '🙈' : '👁️';
-        }
     </script>
 </body>
 </html>

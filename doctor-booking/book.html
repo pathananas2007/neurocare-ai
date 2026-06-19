@@ -21,7 +21,7 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="appointments.html">My Appointments</a></li>
-                <li><a href="admin.html">Admin</a></li>
+                <li id="nav-admin-item"><a href="admin.html">Admin</a></li>
                 <li id="nav-auth-item">
                     <a href="login.html" class="btn btn-primary btn-sm" id="nav-auth-btn">Login</a>
                 </li>
@@ -38,7 +38,9 @@
                     <div class="step-line"></div>
                     <div class="step" id="step2-dot"><span>2</span><small>Details</small></div>
                     <div class="step-line"></div>
-                    <div class="step" id="step3-dot"><span>3</span><small>Done</small></div>
+                    <div class="step" id="step3-dot"><span>3</span><small>Payment</small></div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step4-dot"><span>4</span><small>Done</small></div>
                 </div>
 
                 <h2 class="form-title">Book Appointment</h2>
@@ -58,12 +60,16 @@
                     <div class="success-icon">🎉</div>
                     <h3>Appointment Confirmed!</h3>
                     <p>Your appointment has been successfully booked. You'll find it in My Appointments.</p>
-                    <a href="appointments.html" class="btn btn-primary mt-2">View My Appointments</a>
+                    <button class="btn btn-primary mt-2" id="viewReceiptBtn" onclick="openReceiptModal()">📄 View Receipt</button>
+                    <a href="appointments.html" class="btn btn-outline mt-2">View My Appointments</a>
                     <a href="index.html" class="btn btn-outline mt-2">Book Another</a>
                 </div>
 
                 <!-- Doctor Info Preview -->
                 <div id="selected-doctor-info" class="selected-doctor-info hidden"></div>
+
+                <!-- Availability Calendar -->
+                <div id="availabilityCalendar" class="hidden"></div>
 
                 <!-- Booking Form -->
                 <form id="booking-form" class="booking-form hidden" novalidate>
@@ -107,11 +113,123 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
-                        <span class="btn-text">✅ Confirm Booking</span>
+                        <span class="btn-text">✅ Proceed to Payment</span>
                         <span class="btn-spinner hidden"></span>
                     </button>
                     <a href="index.html" class="btn-cancel text-center">← Cancel, go back</a>
                 </form>
+
+                <!-- Payment Section -->
+                <div id="payment-section" class="hidden">
+                    <div id="payment-doctor-summary" class="selected-doctor-info" style="margin-bottom:24px;"></div>
+
+                    <div class="payment-methods">
+                        <h3 class="payment-title">💳 Choose Payment Method</h3>
+                        <p class="payment-subtitle">Select how you'd like to pay the consultation fee</p>
+
+                        <div class="payment-options">
+                            <!-- UPI -->
+                            <label class="payment-option" id="opt-upi">
+                                <input type="radio" name="paymentMethod" value="upi" checked>
+                                <div class="payment-option-inner">
+                                    <span class="pay-icon">📱</span>
+                                    <div>
+                                        <div class="pay-name">UPI</div>
+                                        <div class="pay-desc">Pay via any UPI app</div>
+                                    </div>
+                                    <span class="pay-check">✓</span>
+                                </div>
+                            </label>
+
+                            <!-- Card -->
+                            <label class="payment-option" id="opt-card">
+                                <input type="radio" name="paymentMethod" value="card">
+                                <div class="payment-option-inner">
+                                    <span class="pay-icon">💳</span>
+                                    <div>
+                                        <div class="pay-name">Credit / Debit Card</div>
+                                        <div class="pay-desc">Visa, Mastercard, RuPay</div>
+                                    </div>
+                                    <span class="pay-check">✓</span>
+                                </div>
+                            </label>
+
+                            <!-- Cash -->
+                            <label class="payment-option" id="opt-cash">
+                                <input type="radio" name="paymentMethod" value="cash">
+                                <div class="payment-option-inner">
+                                    <span class="pay-icon">🏥</span>
+                                    <div>
+                                        <div class="pay-name">Cash on Visit</div>
+                                        <div class="pay-desc">Pay at the clinic</div>
+                                    </div>
+                                    <span class="pay-check">✓</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- UPI Fields -->
+                        <div id="upi-fields" class="payment-fields">
+                            <div class="form-group">
+                                <label for="upiId">📱 UPI ID</label>
+                                <input type="text" id="upiId" placeholder="yourname@upi" autocomplete="off">
+                                <span class="field-error" id="err-upi"></span>
+                            </div>
+                        </div>
+
+                        <!-- Card Fields -->
+                        <div id="card-fields" class="payment-fields hidden">
+                            <div class="form-group">
+                                <label for="cardNumber">💳 Card Number</label>
+                                <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number">
+                                <span class="field-error" id="err-card"></span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cardExpiry">📅 Expiry</label>
+                                    <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp">
+                                    <span class="field-error" id="err-expiry"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cardCvv">🔒 CVV</label>
+                                    <input type="password" id="cardCvv" placeholder="•••" maxlength="3" autocomplete="cc-csc">
+                                    <span class="field-error" id="err-cvv"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cardName">👤 Name on Card</label>
+                                <input type="text" id="cardName" placeholder="As printed on card" autocomplete="cc-name">
+                                <span class="field-error" id="err-cardname"></span>
+                            </div>
+                        </div>
+
+                        <!-- Cash Info -->
+                        <div id="cash-fields" class="payment-fields hidden">
+                            <div class="cash-info-box">
+                                <span class="cash-info-icon">ℹ️</span>
+                                <p>Please carry the exact amount when you visit the clinic. Your appointment is confirmed once you click Pay.</p>
+                            </div>
+                        </div>
+
+                        <!-- Fee Summary -->
+                        <div class="fee-summary">
+                            <div class="fee-row-item">
+                                <span>Consultation Fee</span>
+                                <span id="pay-fee-amount">₹0</span>
+                            </div>
+                            <div class="fee-row-item fee-total">
+                                <span>Total Payable</span>
+                                <span id="pay-total-amount">₹0</span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-block" id="payNowBtn" onclick="processPayment()">
+                            <span id="payBtnText">💳 Pay Now</span>
+                            <span id="payBtnSpinner" class="hidden" style="display:inline-flex;align-items:center;gap:8px;"><span class="spinner" style="width:18px;height:18px;border-width:2px;"></span> Processing…</span>
+                        </button>
+                        <button class="btn-cancel text-center" style="display:block;width:100%;margin-top:12px;background:none;border:none;cursor:pointer;font-family:inherit;" onclick="backToForm()">← Back to Details</button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -125,12 +243,30 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- Receipt Modal -->
+    <div class="modal-overlay hidden" id="receiptModal">
+        <div class="modal-box receipt-modal-box">
+            <div class="receipt-modal-header">
+                <h3>📄 Appointment Receipt</h3>
+                <button class="modal-close-btn" onclick="closeReceiptModal()" aria-label="Close">✕</button>
+            </div>
+            <div id="receiptModalContent" class="receipt-modal-content"></div>
+            <div class="modal-actions" style="margin-top:20px;">
+                <button class="btn btn-outline" onclick="closeReceiptModal()">Close</button>
+                <button class="btn btn-primary" onclick="downloadReceiptFromModal()">⬇️ Download Receipt</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/auth.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/features.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             updateNavForAuth();
+            initFeatures();
             initBookingPage();
+            initPaymentSection();
         });
     </script>
 </body>

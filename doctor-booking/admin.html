@@ -1,9 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Admin panel – View and manage all appointments at Wellness Forever.">
     <title>Wellness Forever | Admin Panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +19,7 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="appointments.html">My Appointments</a></li>
-                <li><a href="admin.html" class="active">Admin</a></li>
+                <li id="nav-admin-item"><a href="admin.html" class="active">Admin</a></li>
                 <li id="nav-auth-item">
                     <a href="login.html" class="btn btn-primary btn-sm" id="nav-auth-btn">Login</a>
                 </li>
@@ -32,9 +31,8 @@
         <header class="page-header">
             <div>
                 <h1>🛡️ Admin Panel</h1>
-                <p>View and manage all system appointments.</p>
+                <p>Manage appointments, doctors and patients.</p>
             </div>
-            <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
         </header>
 
         <!-- Stats Bar -->
@@ -45,57 +43,104 @@
             <div class="stat-card"><span class="stat-num" id="statUnique">0</span><span>Unique Patients</span></div>
         </div>
 
-        <!-- Search -->
-        <div class="admin-search-row">
-            <div class="search-wrapper" style="max-width:400px;">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="adminSearch" placeholder="Search by patient or doctor…">
-            </div>
-            <select id="adminSpecFilter">
-                <option value="">All Specializations</option>
-            </select>
+        <!-- Admin Tabs -->
+        <div class="doc-tabs" style="margin-bottom:28px;">
+            <button class="doc-tab active" onclick="switchAdminTab('appointments')">📋 Appointments</button>
+            <button class="doc-tab" onclick="switchAdminTab('doctors')">👨‍⚕️ Doctors</button>
+            <button class="doc-tab" onclick="switchAdminTab('patients')">🧑‍💼 Patients</button>
         </div>
 
-        <!-- Table -->
-        <div class="table-wrapper">
-            <table class="admin-table" id="adminTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Patient</th>
-                        <th>Phone</th>
-                        <th>Doctor</th>
-                        <th>Specialization</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="adminTableBody">
-                </tbody>
-            </table>
-            <div id="adminEmpty" class="empty-state hidden">
-                <div class="empty-icon">🗂️</div>
-                <h3>No appointments in the system</h3>
-                <p>When patients book appointments, they will appear here.</p>
+        <!-- ── TAB: APPOINTMENTS ── -->
+        <div id="tabAppointments">
+            <div class="admin-search-row">
+                <div class="search-wrapper" style="max-width:400px;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="adminSearch" placeholder="Search by patient or doctor…">
+                </div>
+                <select id="adminSpecFilter"><option value="">All Specializations</option></select>
+                <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="admin-table" id="adminTable">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Patient</th><th>Phone</th><th>Doctor</th>
+                            <th>Specialization</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody"></tbody>
+                </table>
+                <div id="adminEmpty" class="empty-state hidden">
+                    <div class="empty-icon">🗂️</div>
+                    <h3>No appointments in the system</h3>
+                    <p>When patients book appointments, they will appear here.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: DOCTORS ── -->
+        <div id="tabDoctors" class="hidden">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
+                <button class="btn btn-primary" onclick="openDoctorModal()">+ Add Doctor</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="admin-table" id="doctorsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Doctor</th><th>Specialization</th>
+                            <th>Experience</th><th>Location</th><th>Fee (₹)</th><th>Rating</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doctorsTableBody"></tbody>
+                </table>
+                <div id="doctorsEmpty" class="empty-state hidden">
+                    <div class="empty-icon">👨‍⚕️</div>
+                    <h3>No doctors found</h3>
+                    <p>Add doctors using the button above.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: PATIENTS ── -->
+        <div id="tabPatients" class="hidden">
+            <div class="admin-search-row">
+                <div class="search-wrapper" style="max-width:400px;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="patientSearch" placeholder="Search by name, email or phone…">
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="admin-table" id="patientsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered On</th><th>Bookings</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody"></tbody>
+                </table>
+                <div id="patientsEmpty" class="empty-state hidden">
+                    <div class="empty-icon">🧑‍💼</div>
+                    <h3>No patients registered</h3>
+                    <p>Patients who sign up will appear here.</p>
+                </div>
             </div>
         </div>
     </main>
 
     <footer class="footer">
         <div class="container footer-content">
-            <p>© 2024 Wellness Forever. All rights reserved. Created by Bhushan and Shekhar</p>
+            <p>© 2026 Wellness Forever. All rights reserved. Created by Bhushan and Shekhar</p>
         </div>
     </footer>
 
     <div class="toast" id="toast"></div>
 
+    <!-- Delete Confirm Modal -->
     <div class="modal-overlay hidden" id="confirmModal">
         <div class="modal-box">
             <div class="modal-icon">🗑️</div>
-            <h3>Delete Appointment?</h3>
-            <p>This will permanently remove the appointment from the system.</p>
+            <h3 id="confirmModalTitle">Delete Appointment?</h3>
+            <p id="confirmModalMsg">This will permanently remove the record from the system.</p>
             <div class="modal-actions">
                 <button class="btn btn-outline" id="modalCancelBtn">No, Keep It</button>
                 <button class="btn btn-danger" id="modalConfirmBtn">Yes, Delete</button>
@@ -103,11 +148,75 @@
         </div>
     </div>
 
+    <!-- Add / Edit Doctor Modal -->
+    <div class="modal-overlay hidden" id="doctorModal">
+        <div class="modal-box" style="max-width:600px;text-align:left;">
+            <h3 id="doctorModalTitle" style="margin-bottom:20px;">👨‍⚕️ Add Doctor</h3>
+            <form id="doctorForm" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="dmName" placeholder="Dr. Full Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Specialization</label>
+                        <input type="text" id="dmSpec" placeholder="e.g. Cardiologist" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Experience</label>
+                        <input type="text" id="dmExp" placeholder="e.g. 10 years" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fee (₹)</label>
+                        <input type="number" id="dmFee" placeholder="e.g. 500" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="dmLocation" placeholder="City, State" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Rating (0–5)</label>
+                        <input type="number" id="dmRating" placeholder="e.g. 4.5" min="0" max="5" step="0.1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="dmEmail" placeholder="doctor@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="dmBio" rows="2" placeholder="Short bio…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Available Slots <span class="optional">(comma separated)</span></label>
+                    <input type="text" id="dmSlots" placeholder="09:00 AM, 11:00 AM, 02:00 PM">
+                </div>
+                <input type="hidden" id="dmEditId">
+                <div class="modal-actions" style="justify-content:flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="closeDoctorModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">💾 Save Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="js/auth.js"></script>
     <script src="js/admin.js"></script>
+    <script src="js/features.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Guard: only admins can access this page
+            const user = getLoggedInUser();
+            if (!user || user.role !== 'admin') {
+                window.location.href = 'login-admin.html';
+                return;
+            }
             updateNavForAuth();
+            initFeatures();
             loadAdminPanel();
         });
     </script>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Forever | Doctor Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+
+    <nav class="navbar" id="mainNav">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">⚕️ Wellness Forever</a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="doctor-dashboard.html" class="active">My Dashboard</a></li>
+                <li id="nav-auth-item">
+                    <a href="login.html" class="btn btn-primary btn-sm" id="nav-auth-btn">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content" id="dashboardMain">
+        <!-- Access denied shown if not a doctor -->
+        <div id="accessDenied" class="empty-state hidden">
+            <div class="empty-icon">🔒</div>
+            <h3>Access Denied</h3>
+            <p>This page is only for registered doctors. Please login with a doctor account.</p>
+            <a href="login.html" class="btn btn-primary mt-2">Go to Login</a>
+        </div>
+
+        <!-- Dashboard content -->
+        <div id="dashboardContent" class="hidden">
+            <!-- Doctor Profile Header -->
+            <div class="doctor-profile-header" id="doctorProfileHeader"></div>
+
+            <!-- Stats -->
+            <div class="admin-stats" id="docStats">
+                <div class="stat-card"><span class="stat-num" id="docStatTotal">0</span><span>Total Appointments</span></div>
+                <div class="stat-card"><span class="stat-num" id="docStatUpcoming">0</span><span>Upcoming</span></div>
+                <div class="stat-card"><span class="stat-num" id="docStatPast">0</span><span>Past</span></div>
+                <div class="stat-card"><span class="stat-num" id="docStatPatients">0</span><span>Unique Patients</span></div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="doc-tabs">
+                <button class="doc-tab active" onclick="switchDocTab('appointments')">📋 My Appointments</button>
+                <button class="doc-tab" onclick="switchDocTab('patients')">🧑‍💼 My Patients</button>
+                <button class="doc-tab" onclick="switchDocTab('profile')">✏️ Edit Profile & Slots</button>
+            </div>
+
+            <!-- Appointments Tab -->
+            <div id="tabAppointments">
+                <div class="admin-search-row" style="margin-bottom:20px;">
+                    <div class="search-wrapper" style="max-width:360px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="docSearch" placeholder="Search by patient name or phone…">
+                    </div>
+                    <div class="apt-filter-row" style="margin:0;">
+                        <button class="filter-pill active" data-filter="all" onclick="filterDocApts(this,'all')">All</button>
+                        <button class="filter-pill" data-filter="upcoming" onclick="filterDocApts(this,'upcoming')">Upcoming</button>
+                        <button class="filter-pill" data-filter="past" onclick="filterDocApts(this,'past')">Past</button>
+                        <button class="filter-pill" data-filter="pending" onclick="filterDocApts(this,'pending')">⏳ Pending</button>
+                        <button class="filter-pill" data-filter="confirmed" onclick="filterDocApts(this,'confirmed')">✅ Confirmed</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="admin-table" id="docAptTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Patient</th>
+                                <th>Phone</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Reason</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="docAptTableBody"></tbody>
+                    </table>
+                    <div id="docAptEmpty" class="empty-state hidden">
+                        <div class="empty-icon">📅</div>
+                        <h3>No appointments yet</h3>
+                        <p>Appointments booked with you will appear here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patients Tab -->
+            <div id="tabPatients" class="hidden">
+                <div class="admin-search-row" style="margin-bottom:20px;">
+                    <div class="search-wrapper" style="max-width:360px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="patientSearchDoc" placeholder="Search by name, phone or email…">
+                    </div>
+                </div>
+                <div id="docPatientsList" class="doc-patients-grid"></div>
+                <div id="docPatientsEmpty" class="empty-state hidden">
+                    <div class="empty-icon">🧑‍💼</div>
+                    <h3>No patients yet</h3>
+                    <p>Patients who book appointments with you will appear here.</p>
+                </div>
+            </div>
+
+            <!-- Profile Edit Tab -->
+            <div id="tabProfile" class="hidden">
+                <div class="form-card" style="max-width:680px;margin:0 auto;">
+                    <h2 class="form-title" style="text-align:left;font-size:1.4rem;margin-bottom:24px;">✏️ Edit Your Profile</h2>
+                    <form id="doctorProfileForm" novalidate>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>👤 Full Name</label>
+                                <input type="text" id="dpName" placeholder="Dr. Your Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>🏥 Specialization</label>
+                                <input type="text" id="dpSpec" placeholder="e.g. Cardiologist" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>🏆 Experience</label>
+                                <input type="text" id="dpExp" placeholder="e.g. 10 years" required>
+                            </div>
+                            <div class="form-group">
+                                <label>💰 Consultation Fee (₹)</label>
+                                <input type="number" id="dpFee" placeholder="e.g. 500" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>📍 Location</label>
+                            <input type="text" id="dpLocation" placeholder="City, State" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📝 Bio</label>
+                            <textarea id="dpBio" rows="3" placeholder="Brief description about yourself…"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>🕐 Available Time Slots <span class="optional">(comma separated)</span></label>
+                            <input type="text" id="dpSlots" placeholder="09:00 AM, 11:00 AM, 02:00 PM">
+                            <span class="field-error" id="dp-err-slots"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <p>© 2026 Wellness Forever. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Patient Detail Modal -->
+    <div class="modal-overlay hidden" id="patientModal">
+        <div class="modal-box" style="max-width:560px;text-align:left;padding:0;overflow:hidden;">
+            <div class="patient-modal-header">
+                <div class="patient-modal-avatar" id="pmAvatar">P</div>
+                <div>
+                    <h3 id="pmName">—</h3>
+                    <p id="pmContact" style="font-size:0.88rem;opacity:0.85;margin-top:4px;"></p>
+                </div>
+                <button class="modal-close-btn" onclick="closePatientModal()" aria-label="Close" style="margin-left:auto;background:rgba(255,255,255,0.2);color:#fff;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">✕</button>
+            </div>
+            <div style="padding:28px 32px;">
+                <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-bottom:14px;">Appointment History</p>
+                <div id="pmAptList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescription Editor Modal (doctor-side) -->
+    <div class="modal-overlay hidden" id="prescriptionModal">
+        <div class="modal-box feature-modal-box">
+            <div class="feature-modal-header">
+                <h3>💊 Add / Edit Prescription</h3>
+                <button class="modal-close-btn" onclick="closePrescriptionModal()" aria-label="Close">✕</button>
+            </div>
+            <p style="color:var(--text-muted);margin-bottom:20px;font-size:0.9rem;">
+                This prescription will be visible to the patient in their appointments page.
+            </p>
+            <input type="hidden" id="presc-aptId">
+            <div class="form-group">
+                <label for="presc-notes">📋 Doctor's Notes / Diagnosis</label>
+                <textarea id="presc-notes" rows="4" placeholder="Patient complaints, diagnosis, advice…"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="presc-medicines">💊 Prescribed Medicines</label>
+                <textarea id="presc-medicines" rows="4" placeholder="e.g. Paracetamol 500mg – twice daily for 5 days&#10;Cetirizine 10mg – once at night…"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="presc-followup">📅 Follow-up Date <span class="optional">(optional)</span></label>
+                <input type="date" id="presc-followup">
+            </div>
+            <div class="modal-actions" style="justify-content:flex-end;">
+                <button type="button" class="btn btn-outline" onclick="closePrescriptionModal()">Cancel</button>
+                <button type="button" id="prescSaveBtn" class="btn btn-primary">💾 Save Prescription</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Patient Medical History Modal (doctor-side) -->
+    <div class="modal-overlay hidden" id="viewMedHistoryModal">
+        <div class="modal-box feature-modal-box">
+            <div class="feature-modal-header">
+                <h3 id="vmh-title">🏥 Patient Medical History</h3>
+                <button class="modal-close-btn" onclick="closeViewMedHistoryModal()" aria-label="Close">✕</button>
+            </div>
+            <div id="vmh-content"></div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/doctor.js"></script>
+    <script src="js/features.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNavForAuth();
+            initFeatures();
+            initDoctorDashboard();
+        });
+    </script>
+</body>
+</html>

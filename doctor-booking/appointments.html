@@ -20,7 +20,7 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="appointments.html" class="active">My Appointments</a></li>
-                <li><a href="admin.html">Admin</a></li>
+                <li id="nav-admin-item"><a href="admin.html">Admin</a></li>
                 <li id="nav-auth-item">
                     <a href="login.html" class="btn btn-primary btn-sm" id="nav-auth-btn">Login</a>
                 </li>
@@ -75,12 +75,185 @@
         </div>
     </div>
 
+    <!-- Receipt Modal -->
+    <div class="modal-overlay hidden" id="receiptModal">
+        <div class="modal-box receipt-modal-box">
+            <div class="receipt-modal-header">
+                <h3>📄 Appointment Receipt</h3>
+                <button class="modal-close-btn" onclick="closeReceiptModal()" aria-label="Close">✕</button>
+            </div>
+            <div id="receiptModalContent" class="receipt-modal-content"></div>
+            <div class="modal-actions" style="margin-top:20px;">
+                <button class="btn btn-outline" onclick="closeReceiptModal()">Close</button>
+                <button class="btn btn-primary" onclick="downloadReceiptFromModal()">⬇️ Download Receipt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div class="modal-overlay hidden" id="rescheduleModal">
+        <div class="modal-box" style="max-width:460px;">
+            <div class="modal-icon">🔄</div>
+            <h3>Reschedule Appointment</h3>
+            <p style="margin-bottom:20px;">Choose a new date and time for your appointment.</p>
+            <div class="form-group" style="text-align:left;">
+                <label for="rescheduleDate">📅 New Date</label>
+                <input type="date" id="rescheduleDate">
+            </div>
+            <div class="form-group" style="text-align:left;">
+                <label for="rescheduleTime">🕐 New Time Slot</label>
+                <select id="rescheduleTime">
+                    <option value="" disabled selected>Select a slot</option>
+                </select>
+            </div>
+            <span class="field-error" id="reschedule-err" style="display:block;margin-bottom:12px;"></span>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeRescheduleModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmReschedule()">✅ Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div class="modal-overlay hidden" id="ratingModal">
+        <div class="modal-box" style="max-width:440px;">
+            <div class="modal-icon">⭐</div>
+            <h3>Rate Your Visit</h3>
+            <p style="margin-bottom:20px;">How was your experience with the doctor?</p>
+            <div class="star-picker">
+                <button class="star-picker-btn" onmouseover="renderStarPicker(1)" onmouseout="renderStarPicker(0)" onclick="_selectedRating=1;renderStarPicker(0)">☆</button>
+                <button class="star-picker-btn" onmouseover="renderStarPicker(2)" onmouseout="renderStarPicker(0)" onclick="_selectedRating=2;renderStarPicker(0)">☆</button>
+                <button class="star-picker-btn" onmouseover="renderStarPicker(3)" onmouseout="renderStarPicker(0)" onclick="_selectedRating=3;renderStarPicker(0)">☆</button>
+                <button class="star-picker-btn" onmouseover="renderStarPicker(4)" onmouseout="renderStarPicker(0)" onclick="_selectedRating=4;renderStarPicker(0)">☆</button>
+                <button class="star-picker-btn" onmouseover="renderStarPicker(5)" onmouseout="renderStarPicker(0)" onclick="_selectedRating=5;renderStarPicker(0)">☆</button>
+            </div>
+            <span class="field-error" id="rating-err" style="display:block;margin:8px 0 12px;"></span>
+            <div class="form-group" style="text-align:left;">
+                <label for="ratingNote">📝 Comments <span class="optional">(optional)</span></label>
+                <textarea id="ratingNote" rows="3" placeholder="Share your experience…" style="width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:0.93rem;resize:vertical;outline:none;"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeRatingModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitRating()">⭐ Submit Rating</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Prescription Modal (patient-side) -->
+    <div class="modal-overlay hidden" id="viewPrescriptionModal">
+        <div class="modal-box feature-modal-box">
+            <div class="feature-modal-header">
+                <h3>💊 Prescription / Doctor's Notes</h3>
+                <button class="modal-close-btn" onclick="closeViewPrescriptionModal()" aria-label="Close">✕</button>
+            </div>
+            <div id="viewPresc-content"></div>
+        </div>
+    </div>
+
+    <!-- Medical History Modal (patient fills own profile) -->
+    <div class="modal-overlay hidden" id="medHistoryModal">
+        <div class="modal-box feature-modal-box">
+            <div class="feature-modal-header">
+                <h3>🏥 My Medical Profile</h3>
+                <button class="modal-close-btn" onclick="closeMedicalHistoryModal()" aria-label="Close">✕</button>
+            </div>
+            <p style="color:var(--text-muted);margin-bottom:20px;font-size:0.9rem;">
+                This information helps doctors provide better care. Stored privately on your device.
+            </p>
+            <form id="medHistoryForm" novalidate>
+                <div class="mh-section-title">Basic Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="mh-age" placeholder="e.g. 28" min="0" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="mh-gender">
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Blood Group</label>
+                        <select id="mh-blood">
+                            <option value="">Unknown</option>
+                            <option value="A+">A+</option><option value="A-">A-</option>
+                            <option value="B+">B+</option><option value="B-">B-</option>
+                            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                            <option value="O+">O+</option><option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="mh-weight" placeholder="e.g. 70">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" id="mh-height" placeholder="e.g. 170">
+                </div>
+                <div class="mh-section-title">Medical Information</div>
+                <div class="form-group">
+                    <label>Allergies <span class="optional">(drugs, food, etc.)</span></label>
+                    <textarea id="mh-allergies" rows="2" placeholder="e.g. Penicillin, Peanuts…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Existing Conditions / Chronic Diseases</label>
+                    <textarea id="mh-conditions" rows="2" placeholder="e.g. Diabetes Type 2, Hypertension…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Current Medications</label>
+                    <textarea id="mh-medications" rows="2" placeholder="List medicines you currently take…"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Past Surgeries / Hospitalizations</label>
+                    <textarea id="mh-surgeries" rows="2" placeholder="e.g. Appendectomy 2019…"></textarea>
+                </div>
+                <div class="mh-section-title">Emergency & Insurance</div>
+                <div class="form-group">
+                    <label>Emergency Contact</label>
+                    <input type="text" id="mh-emergency" placeholder="Name – Phone number">
+                </div>
+                <div class="form-group">
+                    <label>Health Insurance <span class="optional">(optional)</span></label>
+                    <input type="text" id="mh-insurance" placeholder="Provider & Policy number">
+                </div>
+                <div class="modal-actions" style="justify-content:flex-end;margin-top:8px;">
+                    <button type="button" class="btn btn-outline" onclick="closeMedicalHistoryModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="js/auth.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/features.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             updateNavForAuth();
+            initFeatures();
             loadAppointments();
+
+            // Add "My Medical Profile" quick-access button for patients
+            const user = getLoggedInUser();
+            if (user && user.role === 'patient') {
+                const header = document.querySelector('.page-header');
+                if (header && !document.getElementById('medProfileBtn')) {
+                    const btn = document.createElement('button');
+                    btn.id        = 'medProfileBtn';
+                    btn.className = 'btn btn-outline';
+                    btn.innerHTML = '🏥 My Medical Profile';
+                    btn.onclick   = openMedicalHistoryModal;
+                    header.appendChild(btn);
+                }
+            }
         });
     </script>
 </body>

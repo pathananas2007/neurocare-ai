@@ -7,16 +7,12 @@
     "location": "Mumbai, Maharashtra",
     "rating": 4.8,
     "fee": 800,
+    "email": "ramesh.patel@wellnessforever.in",
     "avatar": "👨‍⚕️",
     "bio": "Expert in cardiovascular diseases with 15+ years of clinical experience at top Mumbai hospitals.",
-    "availableSlots": [
-      "09:00 AM",
-      "10:30 AM",
-      "01:00 PM",
-      "03:00 PM"
-    ]
+    "availableSlots": ["09:00 AM","10:30 AM","01:00 PM","03:00 PM"]
   },
-  {
+ {
     "id": "2",
     "name": "Dr. Priya Sharma",
     "specialization": "Dermatologist",
@@ -24,14 +20,10 @@
     "location": "Pune, Maharashtra",
     "rating": 4.9,
     "fee": 600,
+    "email": "priya.sharma@wellnessforever.in",
     "avatar": "👩‍⚕️",
     "bio": "Specialist in skin, hair and nail disorders. Known for personalized treatment plans.",
-    "availableSlots": [
-      "10:00 AM",
-      "11:30 AM",
-      "02:00 PM",
-      "04:30 PM"
-    ]
+    "availableSlots": ["10:00 AM","11:30 AM","02:00 PM","04:30 PM"]
   },
   {
     "id": "3",
@@ -41,14 +33,10 @@
     "location": "Delhi, NCR",
     "rating": 4.7,
     "fee": 500,
+    "email": "anjali.desai@wellnessforever.in",
     "avatar": "👩‍⚕️",
     "bio": "Dedicated child healthcare specialist with a gentle, patient-first approach for kids of all ages.",
-    "availableSlots": [
-      "08:30 AM",
-      "09:30 AM",
-      "11:00 AM",
-      "01:30 PM"
-    ]
+    "availableSlots": ["08:30 AM","09:30 AM","11:00 AM","01:30 PM"]
   },
   {
     "id": "4",
@@ -58,14 +46,10 @@
     "location": "Bangalore, Karnataka",
     "rating": 5.0,
     "fee": 1200,
+    "email": "vikram.rao@wellnessforever.in",
     "avatar": "👨‍⚕️",
     "bio": "Leading neurologist specializing in epilepsy, stroke, and neurodegenerative diseases.",
-    "availableSlots": [
-      "11:00 AM",
-      "12:30 PM",
-      "03:30 PM",
-      "05:00 PM"
-    ]
+    "availableSlots": ["11:00 AM","12:30 PM","03:30 PM","05:00 PM"]
   },
   {
     "id": "5",
@@ -75,14 +59,10 @@
     "location": "Chennai, Tamil Nadu",
     "rating": 4.6,
     "fee": 700,
+    "email": "amit.singh@wellnessforever.in",
     "avatar": "👨‍⚕️",
     "bio": "Specializes in joint replacement, sports injuries, and spine disorders with minimally invasive techniques.",
-    "availableSlots": [
-      "09:00 AM",
-      "11:00 AM",
-      "02:30 PM",
-      "04:00 PM"
-    ]
+    "availableSlots": ["09:00 AM","11:00 AM","02:30 PM","04:00 PM"]
   },
   {
     "id": "6",
@@ -92,15 +72,10 @@
     "location": "Hyderabad, Telangana",
     "rating": 4.5,
     "fee": 300,
+    "email": "neha.gupta@wellnessforever.in",
     "avatar": "👩‍⚕️",
     "bio": "Compassionate GP providing comprehensive primary care for patients of all ages.",
-    "availableSlots": [
-      "10:00 AM",
-      "12:00 PM",
-      "02:00 PM",
-      "04:00 PM",
-      "06:00 PM"
-    ]
+    "availableSlots": ["10:00 AM","12:00 PM","02:00 PM","04:00 PM","06:00 PM"]
   },
   {
     "id": "7",
@@ -110,13 +85,10 @@
     "location": "Nagpur, Maharashtra",
     "rating": 4.4,
     "fee": 900,
+    "email": "sagar.kale@wellnessforever.in",
     "avatar": "👨‍⚕️",
     "bio": "Skilled surgeon with expertise in laparoscopic and general surgical procedures.",
-    "availableSlots": [
-      "09:30 AM",
-      "12:30 PM",
-      "03:00 PM"
-    ]
+    "availableSlots": ["09:30 AM","12:30 PM","03:00 PM"]
   },
   {
     "id": "8",
@@ -126,14 +98,10 @@
     "location": "Kasaba-bawada, kolhapur",
     "rating": 4.3,
     "fee": 850,
+    "email": "pranit.wadkar@wellnessforever.in",
     "avatar": "👨‍⚕️",
     "bio": "Experienced surgeon focused on minimally invasive procedures and fast patient recovery.",
-    "availableSlots": [
-      "08:00 AM",
-      "10:00 AM",
-      "01:00 PM",
-      "05:00 PM"
-    ]
+    "availableSlots": ["08:00 AM","10:00 AM","01:00 PM","05:00 PM"]
   },
   {
     "id": "9",
@@ -143,13 +111,9 @@
     "location": "Kolhapur, Gaganabawada",
     "rating": 4.5,
     "fee": 650,
+    "email": "tanvi.varekar@wellnessforever.in",
     "avatar": "👩‍⚕️",
     "bio": "Focuses on bone health and rehabiliation, helping patients regain mobility and quality of life.",
-    "availableSlots": [
-      "09:00 AM",
-      "11:00 AM",
-      "02:30 PM",
-      "04:00 PM"
-    ]
+    "availableSlots": ["09:00 AM","11:00 AM","02:30 PM","04:00 PM"]
   }
 ]

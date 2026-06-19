@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Forever | Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-body">
+
+    <div class="auth-wrapper">
+        <!-- Left decorative panel -->
+        <div class="auth-left admin-auth-left">
+            <a href="login.html" class="logo auth-logo">⚕️ Wellness Forever</a>
+            <div class="auth-role-badge">🛡️ Admin Portal</div>
+            <h2>Full control of the system.</h2>
+            <p>Manage all doctors, patients and appointments from one powerful dashboard.</p>
+            <div class="auth-features">
+                <div class="auth-feat">👨‍⚕️ Add &amp; manage doctors</div>
+                <div class="auth-feat">🧑‍💼 View all patients</div>
+                <div class="auth-feat">📋 Manage all appointments</div>
+                <div class="auth-feat">📊 System-wide statistics</div>
+            </div>
+            <a href="login.html" class="auth-back-link">← Switch role</a>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="auth-right">
+            <div class="admin-login-icon">🛡️</div>
+
+            <form id="adminLoginForm" class="auth-form" novalidate>
+                <h3>Admin Login</h3>
+                <p class="auth-subtitle">Restricted access — authorised personnel only</p>
+
+                <div class="form-group">
+                    <label for="adminEmail">📧 Admin Email</label>
+                    <input type="email" id="adminEmail" placeholder="admin@wellnessforever.in" autocomplete="email" required>
+                    <span class="field-error" id="admin-err-email"></span>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">🔒 Password</label>
+                    <div class="password-wrap">
+                        <input type="password" id="adminPassword" placeholder="Enter admin password" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pw" onclick="togglePw('adminPassword',this)">👁️</button>
+                    </div>
+                    <span class="field-error" id="admin-err-pw"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top:8px;">
+                    Login to Admin Panel →
+                </button>
+
+                <p style="margin-top:16px;font-size:0.82rem;color:var(--text-light);text-align:center;">
+                    Default: <code>admin@wellnessforever.in</code> / <code>admin123</code>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getLoggedInUser();
+            if (user && user.role === 'admin') { window.location.href = 'admin.html'; return; }
+            document.getElementById('adminLoginForm').addEventListener('submit', doAdminLogin);
+        });
+
+        function togglePw(id, btn) {
+            const el = document.getElementById(id);
+            el.type  = el.type === 'password' ? 'text' : 'password';
+            btn.textContent = el.type === 'password' ? '👁️' : '🙈';
+        }
+
+        async function doAdminLogin(e) {
+            e.preventDefault();
+            clearErrors(['admin-err-email', 'admin-err-pw']);
+
+            const email    = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            let valid      = true;
+
+            if (!email || !isValidEmail(email)) { showError('admin-err-email', 'Enter a valid email address.'); valid = false; }
+            if (!password)                       { showError('admin-err-pw',    'Password is required.');         valid = false; }
+            if (!valid) return;
+
+            const btn = e.submitter;
+            if (btn) { btn.disabled = true; btn.textContent = 'Logging in…'; }
+
+            const { ok, data, message } = await apiCall('/auth/login', {
+                method: 'POST',
+                body:   JSON.stringify({ email, password })
+            });
+
+            if (btn) { btn.disabled = false; btn.textContent = 'Login to Admin Panel →'; }
+
+            if (!ok) {
+                showError('admin-err-pw', message || 'Incorrect credentials. Please try again.');
+                return;
+            }
+
+            if (data.role !== 'admin') {
+                showError('admin-err-pw', 'This account does not have admin privileges.');
+                return;
+            }
+
+            setSession(data);
+            showToast('Welcome, Admin! 🛡️', 'success');
+            setTimeout(() => window.location.href = 'admin.html', 900);
+        }
+    </script>
+</body>
+</html>
