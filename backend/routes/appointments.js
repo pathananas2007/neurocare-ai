@@ -2,11 +2,12 @@ const express     = require('express');
 const Appointment = require('../models/Appointment');
 const Doctor      = require('../models/Doctor');
 const { protect, doctorOnly } = require('../middleware/auth');
+const { sendBookingConfirmation, sendStatusUpdate } = require('../utils/mailer');
 
 const router = express.Router();
 
 // ── POST /api/appointments ───────────────────────────────
-// Book an appointment (logged in patients)
+// Book an appointment (logged-in patients)
 router.post('/', protect, async (req, res) => {
     try {
         const { doctorId, patientName, patientPhone, patientEmail, date, time, reason, paymentMethod, paymentStatus } = req.body;
@@ -29,6 +30,11 @@ router.post('/', protect, async (req, res) => {
             return res.status(400).json({ success: false, message: 'This slot is already booked. Please choose another time.' });
         }
 
+        // Check if date is blocked by the doctor
+        if (doctor.blockedDates && doctor.blockedDates.includes(date)) {
+            return res.status(400).json({ success: false, message: 'The doctor is unavailable on this date. Please choose another date.' });
+        }
+
         const appointment = await Appointment.create({
             doctorId,
             doctorName:     doctor.name,
@@ -47,6 +53,9 @@ router.post('/', protect, async (req, res) => {
             paymentStatus:  paymentStatus || 'pending',
             status:         'pending'
         });
+
+        // Send confirmation email (non-blocking)
+        sendBookingConfirmation(appointment).catch(console.error);
 
         res.status(201).json({ success: true, message: 'Appointment booked!', data: appointment });
     } catch (err) {
@@ -80,7 +89,7 @@ router.get('/doctor/:doctorId', protect, doctorOnly, async (req, res) => {
 });
 
 // ── PATCH /api/appointments/:id/status ──────────────────
-// Update appointment status (doctor/admin)
+// Update appointment status (doctor/admin) — sends email to patient
 router.patch('/:id/status', protect, doctorOnly, async (req, res) => {
     try {
         const { status } = req.body;
@@ -95,6 +104,9 @@ router.patch('/:id/status', protect, doctorOnly, async (req, res) => {
             { new: true }
         );
         if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found.' });
+
+        // Send status update email to patient (non-blocking)
+        sendStatusUpdate(appointment).catch(console.error);
 
         res.json({ success: true, message: 'Status updated.', data: appointment });
     } catch (err) {

@@ -573,7 +573,7 @@ a  { color: inherit; }
 .apt-filter-row {
     display: flex;
     gap: 10px;
-    margin-bottom: 28px;
+    margin-bottom: 16px;
     flex-wrap: wrap;
 }
 .filter-pill {
@@ -590,6 +590,11 @@ a  { color: inherit; }
 }
 .filter-pill:hover { border-color: var(--primary); color: var(--primary); }
 .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ── Appointment Search Row ── */
+.apt-search-row {
+    margin-bottom: 24px;
+}
 
 /* ── Appointments Grid ── */
 .appointments-grid {
@@ -2229,6 +2234,8 @@ a  { color: inherit; }
 .cal-day-open    { background: #d1fae5; border-color: #86efac; }
 .cal-day-partial { background: #fef9c3; border-color: #fde68a; }
 .cal-day-full    { background: #fee2e2; border-color: #fecaca; cursor: not-allowed; opacity: 0.7; }
+.cal-day-blocked { background: #f1f5f9; border-color: #cbd5e1; cursor: not-allowed; opacity: 0.55; position: relative; }
+.cal-day-blocked::after { content: '🚫'; position: absolute; top: 4px; right: 4px; font-size: 0.65rem; }
 .cal-day-today   { box-shadow: 0 0 0 3px rgba(99,102,241,0.3); }
 .cal-day-selected { border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-light); transform: translateY(-3px); }
 
@@ -2240,6 +2247,7 @@ a  { color: inherit; }
 .cal-day-open    .cal-day-avail { color: #065f46; }
 .cal-day-partial .cal-day-avail { color: #854d0e; }
 .cal-day-full    .cal-day-avail { color: #991b1b; }
+.cal-day-blocked .cal-day-avail { color: #64748b; }
 
 .cal-legend {
     display: flex;
@@ -2260,6 +2268,7 @@ a  { color: inherit; }
 .cal-leg.cal-day-open    { background: #d1fae5; border-color: #86efac; color: #065f46; }
 .cal-leg.cal-day-partial { background: #fef9c3; border-color: #fde68a; color: #854d0e; }
 .cal-leg.cal-day-full    { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+.cal-leg.cal-day-blocked { background: #f1f5f9; border-color: #cbd5e1; color: #64748b; }
 
 /* ============================================================
    FEATURE STYLES — Notifications, Reviews, Prescription,
@@ -2653,3 +2662,29 @@ a  { color: inherit; }
     .vmh-grid { grid-template-columns: 1fr 1fr; }
     .drm-review-note { padding-left: 0; }
 }
+
+/* ── Blocked Date Chips (Doctor Dashboard) ── */
+.blocked-date-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: var(--radius-pill);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.blocked-date-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ef4444;
+    font-size: 0.85rem;
+    padding: 0 2px;
+    line-height: 1;
+    transition: var(--transition);
+    font-family: inherit;
+}
+.blocked-date-remove:hover { color: #991b1b; transform: scale(1.2); }

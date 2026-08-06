@@ -44,6 +44,15 @@
             <button class="filter-pill" data-filter="past">Past</button>
         </div>
 
+        <!-- Search bar -->
+        <div class="apt-search-row">
+            <div class="search-wrapper" style="max-width:480px;">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="aptSearch" placeholder="Search by doctor, specialization, or date…" autocomplete="off">
+                <button class="clear-search hidden" id="aptSearchClear">✕</button>
+            </div>
+        </div>
+
         <div id="appointments-list" class="appointments-grid"></div>
 
         <div id="no-appointments" class="empty-state hidden">

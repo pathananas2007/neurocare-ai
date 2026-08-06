@@ -271,6 +271,9 @@ function prefillProfileForm(doctor) {
     set('dpLocation', doctor.location);
     set('dpBio',      doctor.bio);
     set('dpSlots',    (doctor.availableSlots || []).join(', '));
+
+    // Prefill blocked dates
+    renderBlockedDatesList(doctor.blockedDates || []);
 }
 
 async function saveDoctorProfile(e) {
@@ -430,6 +433,96 @@ function openPatientModal(key) {
 function closePatientModal() {
     document.getElementById('patientModal').classList.add('hidden');
 }
+
+/* ══════════════════════════════════════════════════════════
+   BLOCKED DATES (Doctor Availability)
+══════════════════════════════════════════════════════════ */
+
+// In-memory blocked dates for the current session
+let _blockedDates = [];
+
+function renderBlockedDatesList(dates) {
+    _blockedDates = [...dates].sort();
+    const container = document.getElementById('blockedDatesList');
+    if (!container) return;
+
+    if (_blockedDates.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted);font-size:0.88rem;">No dates blocked.</p>`;
+        return;
+    }
+
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    container.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            ${_blockedDates.map(dateStr => {
+                const [y, m, d] = dateStr.split('-');
+                const label = `${d} ${months[parseInt(m, 10) - 1]} ${y}`;
+                return `<div class="blocked-date-chip">
+                    <span>🚫 ${label}</span>
+                    <button class="blocked-date-remove" onclick="removeBlockedDate('${dateStr}')" aria-label="Remove ${label}">✕</button>
+                </div>`;
+            }).join('')}
+        </div>`;
+}
+
+function addBlockedDate() {
+    const input = document.getElementById('blockDateInput');
+    if (!input || !input.value) {
+        showToast('Please select a date to block.', 'error');
+        return;
+    }
+
+    const dateStr = input.value;
+
+    // Don't add past dates
+    const today = new Date().toISOString().split('T')[0];
+    if (dateStr < today) {
+        showToast('Cannot block a past date.', 'error');
+        return;
+    }
+
+    if (_blockedDates.includes(dateStr)) {
+        showToast('This date is already blocked.', 'error');
+        return;
+    }
+
+    _blockedDates.push(dateStr);
+    renderBlockedDatesList(_blockedDates);
+    input.value = '';
+    showToast('Date added. Click "Save Blocked Dates" to apply.', 'success');
+}
+
+function removeBlockedDate(dateStr) {
+    _blockedDates = _blockedDates.filter(d => d !== dateStr);
+    renderBlockedDatesList(_blockedDates);
+}
+
+async function saveBlockedDates() {
+    const doctorId = currentDoctor?._id || currentDoctor?.id;
+    if (!doctorId || doctorId.startsWith('doc_')) {
+        showToast('Doctor profile not found in database. Save your profile first.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('saveBlockedDatesBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    const { ok, message } = await apiCall(`/doctors/${doctorId}/blocked-dates`, {
+        method: 'PATCH',
+        body:   JSON.stringify({ blockedDates: _blockedDates })
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save Blocked Dates'; }
+
+    if (!ok) {
+        showToast(message || 'Could not save blocked dates.', 'error');
+        return;
+    }
+
+    currentDoctor = { ...currentDoctor, blockedDates: _blockedDates };
+    showToast(`Blocked dates saved! (${_blockedDates.length} date${_blockedDates.length !== 1 ? 's' : ''} blocked) ✅`, 'success');
+}
+
 
 /* ══════════════════════════════════════════════════════════
    MEDICAL HISTORY BRIDGE

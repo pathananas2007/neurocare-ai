@@ -464,8 +464,9 @@ function renderAvailabilityCalendar(doctor) {
         }
     });
 
-    const slots = doctor.availableSlots || [];
-    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const slots      = doctor.availableSlots || [];
+    const blocked    = doctor.blockedDates   || [];
+    const dayNames   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
     container.innerHTML = `
@@ -476,21 +477,31 @@ function renderAvailabilityCalendar(doctor) {
         <div class="cal-days">
             ${days.map(d => {
                 const dateStr   = d.toISOString().split('T')[0];
+                const isBlocked = blocked.includes(dateStr);
                 const booked    = bookedMap[dateStr] || [];
-                const available = slots.filter(s => !booked.includes(s)).length;
+                const available = isBlocked ? 0 : slots.filter(s => !booked.includes(s)).length;
                 const total     = slots.length;
                 const isToday   = dateStr === today.toISOString().split('T')[0];
-                const pct       = total > 0 ? Math.round((available / total) * 100) : 0;
-                const statusCls = available === 0 ? 'cal-day-full'
+
+                const statusCls = isBlocked         ? 'cal-day-blocked'
+                                : available === 0   ? 'cal-day-full'
                                 : available <= Math.ceil(total / 2) ? 'cal-day-partial'
                                 : 'cal-day-open';
 
-                return `<div class="cal-day ${statusCls} ${isToday ? 'cal-day-today' : ''}"
-                             onclick="selectCalendarDay('${dateStr}', this)">
+                const availLabel = isBlocked  ? 'Blocked'
+                                 : available === 0 ? 'Full'
+                                 : available + ' open';
+
+                const clickHandler = isBlocked
+                    ? `onclick="showToast('Doctor is unavailable on this date.','error')"`
+                    : `onclick="selectCalendarDay('${dateStr}', this)"`;
+
+                return `<div class="cal-day ${statusCls} ${isToday ? 'cal-day-today' : ''}" ${clickHandler}
+                             title="${isBlocked ? 'Doctor unavailable' : availLabel}">
                     <div class="cal-day-name">${isToday ? 'Today' : dayNames[d.getDay()]}</div>
                     <div class="cal-day-num">${d.getDate()}</div>
                     <div class="cal-day-month">${monthNames[d.getMonth()]}</div>
-                    <div class="cal-day-avail">${available === 0 ? 'Full' : available + ' open'}</div>
+                    <div class="cal-day-avail">${availLabel}</div>
                 </div>`;
             }).join('')}
         </div>
@@ -498,6 +509,7 @@ function renderAvailabilityCalendar(doctor) {
             <span class="cal-leg cal-day-open">Open</span>
             <span class="cal-leg cal-day-partial">Filling</span>
             <span class="cal-leg cal-day-full">Full</span>
+            <span class="cal-leg cal-day-blocked">Blocked</span>
         </div>`;
 }
 
@@ -517,6 +529,14 @@ function selectCalendarDay(dateStr, el) {
 function updateAvailableSlots(doctor, selectedDate) {
     const timeSelect = document.getElementById('appointmentTime');
     if (!timeSelect) return;
+
+    // Check if date is blocked
+    const blocked = doctor.blockedDates || [];
+    if (blocked.includes(selectedDate)) {
+        timeSelect.innerHTML = '<option value="" disabled selected>Doctor unavailable on this date</option>';
+        showToast('Doctor is unavailable on this date. Please choose another.', 'error');
+        return;
+    }
 
     const allApts  = getAppointments();
     const booked   = allApts
@@ -694,6 +714,7 @@ function processPayment() {
 ══════════════════════════════════════════════════════════ */
 
 let currentFilter = 'all';
+let currentSearch = '';
 
 async function loadAppointments() {
     // Show loading state
@@ -723,6 +744,25 @@ async function loadAppointments() {
         });
     });
 
+    // Search bar
+    const aptSearch      = document.getElementById('aptSearch');
+    const aptSearchClear = document.getElementById('aptSearchClear');
+    if (aptSearch) {
+        aptSearch.addEventListener('input', () => {
+            currentSearch = aptSearch.value.toLowerCase().trim();
+            aptSearchClear && aptSearchClear.classList.toggle('hidden', !aptSearch.value);
+            renderAppointments(currentFilter);
+        });
+    }
+    if (aptSearchClear) {
+        aptSearchClear.addEventListener('click', () => {
+            aptSearch.value  = '';
+            currentSearch    = '';
+            aptSearchClear.classList.add('hidden');
+            renderAppointments(currentFilter);
+        });
+    }
+
     // Cancel confirm modal
     wireModal(
         'confirmModal',
@@ -746,6 +786,27 @@ function renderAppointments(filter = 'all') {
 
     if (filter === 'upcoming') visible = visible.filter(a => new Date(a.date) >= today);
     if (filter === 'past')     visible = visible.filter(a => new Date(a.date) <  today);
+
+    // Apply search filter
+    if (currentSearch) {
+        visible = visible.filter(a => {
+            const dateFormatted = a.date ? a.date.replace(/-/g, '/') : '';
+            // also match display date e.g. "05 Aug 2026"
+            const displayDate   = a.date ? (() => {
+                const [y, m, d] = a.date.split('-');
+                const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+                return `${d} ${months[parseInt(m,10)-1]} ${y}`;
+            })() : '';
+            return (
+                (a.doctorName    || '').toLowerCase().includes(currentSearch) ||
+                (a.specialization|| '').toLowerCase().includes(currentSearch) ||
+                (a.date          || '').includes(currentSearch)               ||
+                displayDate.includes(currentSearch)                           ||
+                (a.reason        || '').toLowerCase().includes(currentSearch) ||
+                (a.location      || '').toLowerCase().includes(currentSearch)
+            );
+        });
+    }
 
     visible.sort((a, b) => new Date(a.date) - new Date(b.date));
 

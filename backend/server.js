@@ -1,12 +1,15 @@
 const express    = require('express');
 const mongoose   = require('mongoose');
 const cors       = require('cors');
+const cron       = require('node-cron');
 require('dotenv').config();
 
 const authRoutes        = require('./routes/auth');
 const doctorRoutes      = require('./routes/doctors');
 const appointmentRoutes = require('./routes/appointments');
 const adminRoutes       = require('./routes/admin');
+const Appointment       = require('./models/Appointment');
+const { sendReminderEmail } = require('./utils/mailer');
 
 const app = express();
 
@@ -25,12 +28,38 @@ app.get('/', (req, res) => {
     res.json({ message: '✅ Doctor Booking API is running!' });
 });
 
+// ── 24-Hour Appointment Reminder Cron ───────────────────
+// Runs every day at 10:00 AM — sends reminder emails for tomorrow's appointments
+cron.schedule('0 10 * * *', async () => {
+    console.log('⏰ Running 24-hour reminder cron job...');
+    try {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+        const appointments = await Appointment.find({
+            date:         tomorrowStr,
+            status:       { $in: ['pending', 'confirmed'] },
+            patientEmail: { $ne: '' }
+        });
+
+        console.log(`📋 Found ${appointments.length} appointment(s) for tomorrow (${tomorrowStr})`);
+
+        for (const apt of appointments) {
+            await sendReminderEmail(apt);
+        }
+    } catch (err) {
+        console.error('❌ Reminder cron error:', err.message);
+    }
+});
+
 // ── Connect MongoDB & Start Server ──────────────────────
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('✅ MongoDB connected');
         app.listen(process.env.PORT, () => {
             console.log(`🚀 Server running on http://localhost:${process.env.PORT}`);
+            console.log(`📧 Email notifications: ${process.env.EMAIL_USER ? 'enabled (' + process.env.EMAIL_USER + ')' : 'disabled (set EMAIL_USER and EMAIL_PASS in .env)'}`);
         });
     })
     .catch(err => {

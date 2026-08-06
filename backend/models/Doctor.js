@@ -46,6 +46,10 @@ const doctorSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    blockedDates: {
+        type: [String],   // ISO date strings e.g. "2026-08-15"
+        default: []
+    },
     linkedUserId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

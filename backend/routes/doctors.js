@@ -83,4 +83,37 @@ router.delete('/:id', protect, adminOnly, async (req, res) => {
     }
 });
 
+// ── PATCH /api/doctors/:id/blocked-dates ─────────────────
+// Set blocked dates for a doctor (admin or the doctor themselves)
+router.patch('/:id/blocked-dates', protect, async (req, res) => {
+    try {
+        const doctor = await Doctor.findById(req.params.id);
+        if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found.' });
+
+        const isAdmin = req.user.role === 'admin';
+        const isOwner = doctor.linkedUserId?.toString() === req.user._id.toString();
+        if (!isAdmin && !isOwner) {
+            return res.status(403).json({ success: false, message: 'Not authorized.' });
+        }
+
+        const { blockedDates } = req.body;
+        if (!Array.isArray(blockedDates)) {
+            return res.status(400).json({ success: false, message: 'blockedDates must be an array of date strings.' });
+        }
+
+        // Validate format: YYYY-MM-DD
+        const valid = blockedDates.every(d => /^\d{4}-\d{2}-\d{2}$/.test(d));
+        if (!valid) {
+            return res.status(400).json({ success: false, message: 'All dates must be in YYYY-MM-DD format.' });
+        }
+
+        doctor.blockedDates = blockedDates;
+        await doctor.save();
+
+        res.json({ success: true, message: 'Blocked dates updated.', data: doctor });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 module.exports = router;
