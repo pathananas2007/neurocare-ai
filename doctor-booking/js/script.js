@@ -22,7 +22,7 @@ async function _api(endpoint, options = {}) {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
-        const res  = await fetch(`http://localhost:5000/api${endpoint}`, { ...options, headers });
+        const res  = await fetch(`https://dr-appointment-ugl1.onrender.com/api${endpoint}`, { ...options, headers });
         const json = await res.json();
         return { ok: res.ok, status: res.status, data: json.data, message: json.message || '' };
     } catch {

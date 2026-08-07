@@ -3,7 +3,7 @@
    All fetch() calls to the Node.js backend go through here
 ============================================================ */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://dr-appointment-ugl1.onrender.com/api';
 
 /* ── Token Helpers ──────────────────────────────────────── */
 
