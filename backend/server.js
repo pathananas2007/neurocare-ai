@@ -57,7 +57,7 @@ cron.schedule('0 10 * * *', async () => {
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('✅ MongoDB connected');
-        app.listen(process.env.PORT, () => {
+        app.listen(process.env.PORT, '0.0.0.0', () => {
             console.log(`🚀 Server running on http://localhost:${process.env.PORT}`);
             console.log(`📧 Email notifications: ${process.env.EMAIL_USER ? 'enabled (' + process.env.EMAIL_USER + ')' : 'disabled (set EMAIL_USER and EMAIL_PASS in .env)'}`);
         });
