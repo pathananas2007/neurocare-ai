@@ -1,9 +1,14 @@
 /* ============================================================
    api.js – Central API helper for backend communication
-   All fetch() calls to the Node.js backend go through here
+   All fetch() calls to the Node.js backend go through here.
+
+   ── API BASE URL ────────────────────────────────────────────
+   Change this ONE constant to switch between local and prod:
+   Local dev:   'http://localhost:5000/api'
+   Production:  'https://dr-appointment-ugl1.onrender.com/api'
 ============================================================ */
 
-const API_BASE = 'https://dr-appointment-ugl1.onrender.com/api';
+const API_BASE = 'http://localhost:5000/api';
 
 /* ── Token Helpers ──────────────────────────────────────── */
 
@@ -89,4 +94,34 @@ const AdminAPI = {
         const query = new URLSearchParams(params || {}).toString();
         return apiRequest('GET', `/admin/patients${query ? '?' + query : ''}`);
     }
+};
+
+/* ══════════════════════════════════════════════════════════
+   REVIEWS API
+══════════════════════════════════════════════════════════ */
+
+const ReviewsAPI = {
+    byDoctor: (doctorId)              => apiRequest('GET',  `/reviews/doctor/${doctorId}`),
+    submit:   (appointmentId, rating, note) =>
+        apiRequest('POST', '/reviews', { appointmentId, rating, note })
+};
+
+/* ══════════════════════════════════════════════════════════
+   PRESCRIPTIONS API
+══════════════════════════════════════════════════════════ */
+
+const PrescriptionsAPI = {
+    get:  (appointmentId)                        => apiRequest('GET',  `/prescriptions/${appointmentId}`),
+    save: (appointmentId, notes, medicines, followUpDate) =>
+        apiRequest('POST', '/prescriptions', { appointmentId, notes, medicines, followUpDate })
+};
+
+/* ══════════════════════════════════════════════════════════
+   MEDICAL HISTORY API
+══════════════════════════════════════════════════════════ */
+
+const MedicalHistoryAPI = {
+    getMine:        ()       => apiRequest('GET', '/medical-history/me'),
+    saveMine:       (data)   => apiRequest('PUT', '/medical-history/me', data),
+    getByPatient:   (userId) => apiRequest('GET', `/medical-history/patient/${userId}`)
 };

@@ -4,7 +4,11 @@
    LocalStorage is only used for session (JWT token + user info).
    ============================================================ */
 
-const API_BASE    = 'https://dr-appointment-ugl1.onrender.com/api';
+// ── API base URL ────────────────────────────────────────────
+// Change this ONE line to switch between local dev and production.
+// Local:      'http://localhost:5000/api'
+// Production: 'https://dr-appointment-ugl1.onrender.com/api'
+const API_BASE    = 'http://localhost:5000/api';
 const SESSION_KEY = 'wf_session';
 
 /* ══════════════════════════════════════════════════════════

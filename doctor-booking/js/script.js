@@ -22,7 +22,9 @@ async function _api(endpoint, options = {}) {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
-        const res  = await fetch(`https://dr-appointment-ugl1.onrender.com/api${endpoint}`, { ...options, headers });
+        // Use API_BASE from auth.js if available, otherwise fall back to localhost
+        const base = (typeof API_BASE !== 'undefined') ? API_BASE : 'http://localhost:5000/api';
+        const res  = await fetch(`${base}${endpoint}`, { ...options, headers });
         const json = await res.json();
         return { ok: res.ok, status: res.status, data: json.data, message: json.message || '' };
     } catch {

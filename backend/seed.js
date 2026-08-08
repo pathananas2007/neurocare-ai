@@ -3,6 +3,9 @@
    Run: node seed.js
 ============================================================ */
 
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 const mongoose = require('mongoose');
 const path     = require('path');
 const fs       = require('fs');

@@ -1,17 +1,31 @@
 /* ============================================================
    features.js – Advanced Features
    1. Real-time Notifications / Reminders
-   2. Doctor Reviews & Ratings System
-   3. Prescription / Notes by Doctor
+   2. Doctor Reviews & Ratings System  ← now MongoDB-backed
+   3. Prescription / Notes by Doctor   ← now MongoDB-backed
    4. Appointment Reschedule (enhanced)
-   5. Medical History / Patient Profile
+   5. Medical History / Patient Profile ← now MongoDB-backed
    ============================================================ */
 
-const REVIEWS_KEY        = 'wf_reviews';
-const PRESCRIPTIONS_KEY  = 'wf_prescriptions';
-const MED_HISTORY_KEY    = 'wf_medical_history';
 const NOTIF_KEY          = 'wf_notifications';
 const NOTIF_ASKED_KEY    = 'wf_notif_permission_asked';
+
+// ── Shared API helper (uses auth.js apiCall) ──────────────
+async function _featApi(endpoint, options = {}) {
+    if (typeof apiCall === 'function') return apiCall(endpoint, options);
+    const token = localStorage.getItem('wf_session')
+        ? JSON.parse(localStorage.getItem('wf_session')).token : null;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+        const base = (typeof API_BASE !== 'undefined') ? API_BASE : 'http://localhost:5000/api';
+        const res  = await fetch(`${base}${endpoint}`, { ...options, headers });
+        const json = await res.json();
+        return { ok: res.ok, status: res.status, data: json.data, message: json.message || '' };
+    } catch {
+        return { ok: false, status: 0, data: null, message: 'Cannot connect to server.' };
+    }
+}
 
 /* ══════════════════════════════════════════════════════════
    FEATURE 1 — REAL-TIME NOTIFICATIONS & REMINDERS
@@ -232,88 +246,65 @@ function injectNotifBell() {
 
 /* ══════════════════════════════════════════════════════════
    FEATURE 2 — DOCTOR REVIEWS & RATINGS SYSTEM
+   Reviews are stored in MongoDB via POST /api/reviews.
+   GET /api/reviews/doctor/:id fetches them back.
 ══════════════════════════════════════════════════════════ */
 
 /**
- * Submit a detailed review (called from enhanced rating modal).
- * Stores in wf_reviews keyed by doctorId.
+ * Submit a review to the backend.
+ * Called from script.js submitRating() after _api rate call succeeds.
  */
-function submitDoctorReview(aptId, rating, note) {
-    const apts   = JSON.parse(localStorage.getItem('wf_appointments')) || [];
-    const apt    = apts.find(a => a.id === aptId);
-    if (!apt) return;
-
-    const reviews = JSON.parse(localStorage.getItem(REVIEWS_KEY)) || {};
-    const docId   = apt.doctorId;
-    if (!reviews[docId]) reviews[docId] = [];
-
-    // Remove existing review from same user for same appointment
-    reviews[docId] = reviews[docId].filter(r => r.aptId !== aptId);
-
-    reviews[docId].push({
-        id:          Date.now().toString(),
-        aptId,
-        doctorId:    docId,
-        doctorName:  apt.doctorName,
-        patientName: apt.patientName,
-        userId:      apt.userId,
-        rating,
-        note:        note || '',
-        date:        apt.date,
-        createdAt:   new Date().toISOString()
+async function submitDoctorReview(aptId, rating, note) {
+    await _featApi('/reviews', {
+        method: 'POST',
+        body:   JSON.stringify({ appointmentId: aptId, rating, note: note || '' })
     });
-
-    localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviews));
-
-    // Also update the appointment's rating field (backward compat)
-    const idx = apts.findIndex(a => a.id === aptId);
-    if (idx >= 0) {
-        apts[idx].rating    = rating;
-        apts[idx].ratingNote = note || '';
-        localStorage.setItem('wf_appointments', JSON.stringify(apts));
-    }
-}
-
-function getDoctorReviews(doctorId) {
-    const reviews = JSON.parse(localStorage.getItem(REVIEWS_KEY)) || {};
-    return reviews[doctorId] || [];
-}
-
-function getDoctorAvgRating(doctorId) {
-    const reviews = getDoctorReviews(doctorId);
-    if (reviews.length === 0) return null;
-    const sum = reviews.reduce((s, r) => s + r.rating, 0);
-    return (sum / reviews.length).toFixed(1);
+    // No return value needed — caller handles UI updates
 }
 
 /**
- * Render a reviews panel for a doctor card (used in index.html).
- * Call openDoctorReviews(doctorId) to show the modal.
+ * Fetch reviews for a doctor from the backend.
+ * Returns an array (empty if error).
  */
-function openDoctorReviewsModal(doctorId, doctorName) {
-    const reviews = getDoctorReviews(doctorId);
-    const modal   = document.getElementById('doctorReviewsModal');
+async function fetchDoctorReviews(doctorId) {
+    const { ok, data } = await _featApi(`/reviews/doctor/${doctorId}`);
+    return (ok && data) ? data : [];
+}
+
+/**
+ * Open the reviews modal — fetches live data from MongoDB.
+ */
+async function openDoctorReviewsModal(doctorId, doctorName) {
+    const modal = document.getElementById('doctorReviewsModal');
     if (!modal) return;
 
     document.getElementById('drm-doctorName').textContent = `⭐ Reviews for ${doctorName}`;
 
-    const avg = getDoctorAvgRating(doctorId);
-    const avgEl = document.getElementById('drm-avgRating');
+    // Show loading state
+    const listEl = document.getElementById('drm-reviewList');
+    const avgEl  = document.getElementById('drm-avgRating');
+    if (listEl) listEl.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted)"><div class="spinner" style="width:24px;height:24px;margin:0 auto 8px;"></div>Loading reviews…</div>`;
+    modal.classList.remove('hidden');
+
+    const reviews = await fetchDoctorReviews(doctorId);
+
+    const avg = reviews.length > 0
+        ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+        : null;
+
     if (avgEl) {
         avgEl.innerHTML = avg
             ? `<span class="drm-avg-num">${avg}</span> <span class="drm-avg-stars">${renderFeatureStars(parseFloat(avg))}</span> <span class="drm-avg-count">(${reviews.length} review${reviews.length !== 1 ? 's' : ''})</span>`
             : '<span style="color:var(--text-muted)">No reviews yet</span>';
     }
 
-    const listEl = document.getElementById('drm-reviewList');
     if (reviews.length === 0) {
         listEl.innerHTML = `<div class="drm-empty">No reviews yet for this doctor.</div>`;
     } else {
-        const sorted = [...reviews].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        listEl.innerHTML = sorted.map(r => `
+        listEl.innerHTML = reviews.map(r => `
             <div class="drm-review-item">
                 <div class="drm-review-top">
-                    <div class="drm-reviewer-avatar">${r.patientName.charAt(0).toUpperCase()}</div>
+                    <div class="drm-reviewer-avatar">${(r.patientName || '?').charAt(0).toUpperCase()}</div>
                     <div>
                         <div class="drm-reviewer-name">${escapeFeatureHTML(r.patientName)}</div>
                         <div class="drm-review-date">${formatFeatureDate(r.createdAt)}</div>
@@ -324,7 +315,24 @@ function openDoctorReviewsModal(doctorId, doctorName) {
             </div>`).join('');
     }
 
-    modal.classList.remove('hidden');
+    // Update the review chip on the doctor card if present
+    const chip = document.getElementById(`review-chip-${doctorId}`);
+    if (chip) {
+        chip.textContent = avg
+            ? `⭐ ${avg} (${reviews.length})`
+            : `⭐ ${reviews.length} review${reviews.length !== 1 ? 's' : ''}`;
+    }
+}
+
+// Legacy sync wrapper — kept for backward compat with renderDoctors() chip updates
+function getDoctorReviews(doctorId) {
+    // Returns empty synchronously; async fetch happens in openDoctorReviewsModal
+    return [];
+}
+
+function closeDoctorReviewsModal() {
+    const modal = document.getElementById('doctorReviewsModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function closeDoctorReviewsModal() {
@@ -344,36 +352,43 @@ function renderFeatureStars(rating) {
 
 /* ══════════════════════════════════════════════════════════
    FEATURE 3 — PRESCRIPTION / NOTES BY DOCTOR
+   Prescriptions are stored in MongoDB via POST /api/prescriptions.
 ══════════════════════════════════════════════════════════ */
 
-function savePrescription(aptId, notes, medicines, followUpDate) {
-    const prescriptions = JSON.parse(localStorage.getItem(PRESCRIPTIONS_KEY)) || {};
-    prescriptions[aptId] = {
-        aptId,
-        notes:        notes || '',
-        medicines:    medicines || '',
-        followUpDate: followUpDate || '',
-        savedAt:      new Date().toISOString()
-    };
-    localStorage.setItem(PRESCRIPTIONS_KEY, JSON.stringify(prescriptions));
+async function savePrescription(aptId, notes, medicines, followUpDate) {
+    const { ok, data, message } = await _featApi('/prescriptions', {
+        method: 'POST',
+        body:   JSON.stringify({ appointmentId: aptId, notes, medicines, followUpDate: followUpDate || '' })
+    });
+    return { ok, data, message };
 }
 
-function getPrescription(aptId) {
-    const prescriptions = JSON.parse(localStorage.getItem(PRESCRIPTIONS_KEY)) || {};
-    return prescriptions[aptId] || null;
+async function getPrescription(aptId) {
+    const { ok, data } = await _featApi(`/prescriptions/${aptId}`);
+    return (ok && data) ? data : null;
+}
+
+// In-memory cache for current session to avoid extra fetches
+const _prescriptionCache = {};
+
+async function getPrescriptionCached(aptId) {
+    if (_prescriptionCache[aptId] !== undefined) return _prescriptionCache[aptId];
+    const rx = await getPrescription(aptId);
+    _prescriptionCache[aptId] = rx;
+    return rx;
 }
 
 /* ── Doctor side: open prescription editor modal ── */
-function openPrescriptionModal(aptId) {
+async function openPrescriptionModal(aptId) {
     const modal = document.getElementById('prescriptionModal');
     if (!modal) return;
 
     document.getElementById('presc-aptId').value = aptId;
 
     // Load existing prescription if any
-    const existing = getPrescription(aptId);
-    document.getElementById('presc-notes').value      = existing?.notes      || '';
-    document.getElementById('presc-medicines').value  = existing?.medicines  || '';
+    const existing = await getPrescriptionCached(aptId);
+    document.getElementById('presc-notes').value      = existing?.notes        || '';
+    document.getElementById('presc-medicines').value  = existing?.medicines    || '';
     document.getElementById('presc-followup').value   = existing?.followUpDate || '';
 
     modal.classList.remove('hidden');
@@ -384,46 +399,55 @@ function closePrescriptionModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-function savePrescriptionFromModal() {
-    const aptId      = document.getElementById('presc-aptId').value;
-    const notes      = document.getElementById('presc-notes').value.trim();
-    const medicines  = document.getElementById('presc-medicines').value.trim();
-    const followUp   = document.getElementById('presc-followup').value;
+async function savePrescriptionFromModal() {
+    const aptId     = document.getElementById('presc-aptId').value;
+    const notes     = document.getElementById('presc-notes').value.trim();
+    const medicines = document.getElementById('presc-medicines').value.trim();
+    const followUp  = document.getElementById('presc-followup').value;
 
     if (!notes && !medicines) {
         if (typeof showToast === 'function') showToast('Please add notes or medicines.', 'error');
         return;
     }
 
-    savePrescription(aptId, notes, medicines, followUp);
-    closePrescriptionModal();
+    const btn = document.getElementById('prescSaveBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
+    const { ok, data, message } = await savePrescription(aptId, notes, medicines, followUp);
+
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save Prescription'; }
+
+    if (!ok) {
+        if (typeof showToast === 'function') showToast(message || 'Could not save prescription.', 'error');
+        return;
+    }
+
+    // Update cache
+    _prescriptionCache[aptId] = data;
+    closePrescriptionModal();
     if (typeof showToast === 'function') showToast('Prescription saved successfully! ✅', 'success');
 
-    // Add notification for patient
-    const apts = JSON.parse(localStorage.getItem('wf_appointments')) || [];
-    const apt  = apts.find(a => a.id === aptId);
-    if (apt) {
-        addInAppNotification({
-            icon:    '💊',
-            title:   'Prescription Added',
-            message: `Dr. ${apt.doctorName} has added a prescription for your visit on ${formatFeatureDate(apt.date)}.`,
-            time:    new Date().toISOString(),
-            aptId
-        });
-    }
+    // Add in-app notification
+    addInAppNotification({
+        icon:    '💊',
+        title:   'Prescription Added',
+        message: `Prescription has been saved for appointment #${aptId.slice(-6).toUpperCase()}.`,
+        time:    new Date().toISOString(),
+        aptId
+    });
 }
 
 /* ── Patient side: view prescription modal ── */
-function openViewPrescriptionModal(aptId) {
+async function openViewPrescriptionModal(aptId) {
     const modal = document.getElementById('viewPrescriptionModal');
     if (!modal) return;
 
-    const rx  = getPrescription(aptId);
-    const apts = JSON.parse(localStorage.getItem('wf_appointments')) || [];
-    const apt  = apts.find(a => a.id === aptId);
-
     const content = document.getElementById('viewPresc-content');
+    if (content) content.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted)"><div class="spinner" style="width:24px;height:24px;margin:0 auto 8px;"></div>Loading…</div>`;
+    modal.classList.remove('hidden');
+
+    const rx = await getPrescription(aptId);
+
     if (!rx) {
         content.innerHTML = `<div class="presc-empty">No prescription has been added by the doctor yet.</div>`;
     } else {
@@ -431,13 +455,8 @@ function openViewPrescriptionModal(aptId) {
             <div class="presc-view-card">
                 <div class="presc-header">
                     <span class="presc-logo">⚕️ Wellness Forever</span>
-                    <span class="presc-date">Date: ${formatFeatureDate(rx.savedAt)}</span>
+                    <span class="presc-date">Date: ${formatFeatureDate(rx.updatedAt || rx.createdAt)}</span>
                 </div>
-                ${apt ? `<div class="presc-patient-info">
-                    <p><strong>Patient:</strong> ${escapeFeatureHTML(apt.patientName)}</p>
-                    <p><strong>Doctor:</strong> ${escapeFeatureHTML(apt.doctorName)} (${escapeFeatureHTML(apt.specialization)})</p>
-                    <p><strong>Visit Date:</strong> ${formatFeatureDate(apt.date)}</p>
-                </div>` : ''}
                 ${rx.notes ? `
                 <div class="presc-section">
                     <div class="presc-section-title">📋 Doctor's Notes</div>
@@ -455,8 +474,6 @@ function openViewPrescriptionModal(aptId) {
                 </div>` : ''}
             </div>`;
     }
-
-    modal.classList.remove('hidden');
 }
 
 function closeViewPrescriptionModal() {
@@ -467,34 +484,42 @@ function closeViewPrescriptionModal() {
 
 /* ══════════════════════════════════════════════════════════
    FEATURE 5 — MEDICAL HISTORY / PATIENT PROFILE
-   (Feature 4 = Reschedule is already in script.js; enhanced below)
+   Stored in MongoDB via PUT /api/medical-history/me.
 ══════════════════════════════════════════════════════════ */
 
-function getMedicalHistory(userId) {
-    const all = JSON.parse(localStorage.getItem(MED_HISTORY_KEY)) || {};
-    return all[userId] || {};
+async function getMedicalHistory(userId) {
+    // userId param kept for API compat; /me uses JWT to identify user
+    const { ok, data } = await _featApi('/medical-history/me');
+    return (ok && data) ? data : {};
 }
 
-function saveMedicalHistory(userId, data) {
-    const all = JSON.parse(localStorage.getItem(MED_HISTORY_KEY)) || {};
-    all[userId] = { ...data, updatedAt: new Date().toISOString() };
-    localStorage.setItem(MED_HISTORY_KEY, JSON.stringify(all));
+async function getPatientMedicalHistory(userId) {
+    const { ok, data } = await _featApi(`/medical-history/patient/${userId}`);
+    return (ok && data) ? data : {};
 }
 
 /* ── Patient: open/close medical history modal ── */
-function openMedicalHistoryModal() {
+async function openMedicalHistoryModal() {
     const modal = document.getElementById('medHistoryModal');
     if (!modal) return;
 
     const user = (typeof getLoggedInUser === 'function') ? getLoggedInUser() : null;
     if (!user) return;
 
-    const hist = getMedicalHistory(user.id);
+    modal.classList.remove('hidden');
 
-    // Fill form fields
+    // Show loading state in fields
+    const fieldIds = ['mh-age','mh-gender','mh-blood','mh-weight','mh-height',
+                      'mh-allergies','mh-conditions','mh-medications','mh-surgeries',
+                      'mh-emergency','mh-insurance'];
+    fieldIds.forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
+
+    const hist = await getMedicalHistory(user.id);
+
+    // Re-enable and fill fields
     const set = (id, val) => {
         const el = document.getElementById(id);
-        if (el) el.value = val || '';
+        if (el) { el.disabled = false; el.value = val || ''; }
     };
     set('mh-age',        hist.age);
     set('mh-gender',     hist.gender);
@@ -507,8 +532,6 @@ function openMedicalHistoryModal() {
     set('mh-surgeries',  hist.pastSurgeries);
     set('mh-emergency',  hist.emergencyContact);
     set('mh-insurance',  hist.insurance);
-
-    modal.classList.remove('hidden');
 }
 
 function closeMedicalHistoryModal() {
@@ -516,7 +539,7 @@ function closeMedicalHistoryModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-function saveMedicalHistoryFromModal(e) {
+async function saveMedicalHistoryFromModal(e) {
     if (e) e.preventDefault();
     const user = (typeof getLoggedInUser === 'function') ? getLoggedInUser() : null;
     if (!user) return;
@@ -524,46 +547,64 @@ function saveMedicalHistoryFromModal(e) {
     const get = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
 
     const data = {
-        age:               get('mh-age'),
-        gender:            get('mh-gender'),
-        bloodGroup:        get('mh-blood'),
-        weight:            get('mh-weight'),
-        height:            get('mh-height'),
-        allergies:         get('mh-allergies'),
-        conditions:        get('mh-conditions'),
-        currentMedications:get('mh-medications'),
-        pastSurgeries:     get('mh-surgeries'),
-        emergencyContact:  get('mh-emergency'),
-        insurance:         get('mh-insurance')
+        age:                get('mh-age'),
+        gender:             get('mh-gender'),
+        bloodGroup:         get('mh-blood'),
+        weight:             get('mh-weight'),
+        height:             get('mh-height'),
+        allergies:          get('mh-allergies'),
+        conditions:         get('mh-conditions'),
+        currentMedications: get('mh-medications'),
+        pastSurgeries:      get('mh-surgeries'),
+        emergencyContact:   get('mh-emergency'),
+        insurance:          get('mh-insurance')
     };
 
-    saveMedicalHistory(user.id, data);
+    const btn = document.querySelector('#medHistoryForm [type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    const { ok, message } = await _featApi('/medical-history/me', {
+        method: 'PUT',
+        body:   JSON.stringify(data)
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save Profile'; }
+
+    if (!ok) {
+        if (typeof showToast === 'function') showToast(message || 'Could not save medical profile.', 'error');
+        return;
+    }
+
     closeMedicalHistoryModal();
     if (typeof showToast === 'function') showToast('Medical profile saved! ✅', 'success');
 }
 
 /* ── Doctor/Admin: view patient medical history in modal ── */
-function openPatientMedHistoryModal(userId, patientName) {
+async function openPatientMedHistoryModal(userId, patientName) {
     const modal = document.getElementById('viewMedHistoryModal');
     if (!modal) return;
 
-    const hist    = getMedicalHistory(userId);
     const titleEl = document.getElementById('vmh-title');
     if (titleEl) titleEl.textContent = `🏥 Medical History – ${patientName}`;
 
     const content = document.getElementById('vmh-content');
-    const fields  = [
-        { label: 'Age',                value: hist.age                ? hist.age + ' years' : null },
-        { label: 'Gender',             value: hist.gender             || null },
-        { label: 'Blood Group',        value: hist.bloodGroup         || null },
-        { label: 'Weight',             value: hist.weight             ? hist.weight + ' kg' : null },
-        { label: 'Height',             value: hist.height             ? hist.height + ' cm' : null },
-        { label: 'Allergies',          value: hist.allergies          || null },
-        { label: 'Existing Conditions',value: hist.conditions         || null },
-        { label: 'Current Medications',value: hist.currentMedications || null },
-        { label: 'Past Surgeries',     value: hist.pastSurgeries      || null },
-        { label: 'Emergency Contact',  value: hist.emergencyContact   || null },
-        { label: 'Insurance',          value: hist.insurance          || null },
+    if (content) content.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted)"><div class="spinner" style="width:24px;height:24px;margin:0 auto 8px;"></div>Loading…</div>`;
+    modal.classList.remove('hidden');
+
+    const hist = await getPatientMedicalHistory(userId);
+
+    const fields = [
+        { label: 'Age',                 value: hist.age                ? hist.age + ' years' : null },
+        { label: 'Gender',              value: hist.gender             || null },
+        { label: 'Blood Group',         value: hist.bloodGroup         || null },
+        { label: 'Weight',              value: hist.weight             ? hist.weight + ' kg' : null },
+        { label: 'Height',              value: hist.height             ? hist.height + ' cm' : null },
+        { label: 'Allergies',           value: hist.allergies          || null },
+        { label: 'Existing Conditions', value: hist.conditions         || null },
+        { label: 'Current Medications', value: hist.currentMedications || null },
+        { label: 'Past Surgeries',      value: hist.pastSurgeries      || null },
+        { label: 'Emergency Contact',   value: hist.emergencyContact   || null },
+        { label: 'Insurance',           value: hist.insurance          || null },
     ];
 
     const hasAny = fields.some(f => f.value);
@@ -579,8 +620,6 @@ function openPatientMedHistoryModal(userId, patientName) {
         </div>
         ${hist.updatedAt ? `<p class="vmh-updated">Last updated: ${formatFeatureDate(hist.updatedAt)}</p>` : ''}`;
     }
-
-    modal.classList.remove('hidden');
 }
 
 function closeViewMedHistoryModal() {
@@ -642,11 +681,11 @@ function initFeatures() {
         }
     });
 
-    // Wire medical history form
+    // Wire medical history form (async submit)
     const mhForm = document.getElementById('medHistoryForm');
     if (mhForm) mhForm.addEventListener('submit', saveMedicalHistoryFromModal);
 
-    // Wire prescription save button
+    // Wire prescription save button (async)
     const prescSaveBtn = document.getElementById('prescSaveBtn');
     if (prescSaveBtn) prescSaveBtn.addEventListener('click', savePrescriptionFromModal);
 }

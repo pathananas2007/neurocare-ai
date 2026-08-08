@@ -1,14 +1,21 @@
+// ── Force Google DNS to fix SRV resolution on restricted networks ──
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 const express    = require('express');
 const mongoose   = require('mongoose');
 const cors       = require('cors');
 const cron       = require('node-cron');
 require('dotenv').config();
 
-const authRoutes        = require('./routes/auth');
-const doctorRoutes      = require('./routes/doctors');
-const appointmentRoutes = require('./routes/appointments');
-const adminRoutes       = require('./routes/admin');
-const Appointment       = require('./models/Appointment');
+const authRoutes           = require('./routes/auth');
+const doctorRoutes         = require('./routes/doctors');
+const appointmentRoutes    = require('./routes/appointments');
+const adminRoutes          = require('./routes/admin');
+const reviewRoutes         = require('./routes/reviews');
+const prescriptionRoutes   = require('./routes/prescriptions');
+const medicalHistoryRoutes = require('./routes/medicalHistory');
+const Appointment          = require('./models/Appointment');
 const { sendReminderEmail } = require('./utils/mailer');
 
 const app = express();
@@ -18,10 +25,13 @@ app.use(cors());
 app.use(express.json());
 
 // ── Routes ──────────────────────────────────────────────
-app.use('/api/auth',         authRoutes);
-app.use('/api/doctors',      doctorRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/admin',        adminRoutes);
+app.use('/api/auth',            authRoutes);
+app.use('/api/doctors',         doctorRoutes);
+app.use('/api/appointments',    appointmentRoutes);
+app.use('/api/admin',           adminRoutes);
+app.use('/api/reviews',         reviewRoutes);
+app.use('/api/prescriptions',   prescriptionRoutes);
+app.use('/api/medical-history', medicalHistoryRoutes);
 
 // ── Health Check ────────────────────────────────────────
 app.get('/', (req, res) => {
