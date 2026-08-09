@@ -7,8 +7,8 @@
 // ── API base URL ────────────────────────────────────────────
 // Change this ONE line to switch between local dev and production.
 // Local:      'http://localhost:5000/api'
-// Production: 'https://dr-appointment-ugl1.onrender.com/api'
-const API_BASE    = 'http://localhost:5000/api';
+// Production: 'https://dr-appointment-omby.onrender.com/api'
+const API_BASE    = 'https://dr-appointment-omby.onrender.com/api';
 const SESSION_KEY = 'wf_session';
 
 /* ══════════════════════════════════════════════════════════

@@ -5,10 +5,10 @@
    ── API BASE URL ────────────────────────────────────────────
    Change this ONE constant to switch between local and prod:
    Local dev:   'http://localhost:5000/api'
-   Production:  'https://dr-appointment-ugl1.onrender.com/api'
+   Production:  'https://dr-appointment-omby.onrender.com/api'
 ============================================================ */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://dr-appointment-omby.onrender.com/api';
 
 /* ── Token Helpers ──────────────────────────────────────── */
 
