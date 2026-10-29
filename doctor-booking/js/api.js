@@ -125,3 +125,13 @@ const MedicalHistoryAPI = {
     saveMine:       (data)   => apiRequest('PUT', '/medical-history/me', data),
     getByPatient:   (userId) => apiRequest('GET', `/medical-history/patient/${userId}`)
 };
+
+/* ══════════════════════════════════════════════════════════
+   AI CHATBOT API
+══════════════════════════════════════════════════════════ */
+
+const ChatAPI = {
+    sendMessage: (messages) => apiRequest('POST', '/chat', { messages }),
+    getStatus:   ()         => apiRequest('GET', '/chat/status')
+};
+

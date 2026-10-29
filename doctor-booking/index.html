@@ -4,25 +4,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Wellness Forever – Find and book top doctors online. Fast, easy and free.">
-    <title>Wellness Forever | Find a Doctor</title>
+    <meta name="description" content="Wellness Forever – Find and book top doctors online. Fast, easy, and secure healthcare booking.">
+    <title>Wellness Forever | Find & Book Top Doctors Online</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/landing-redesign.css">
+    <link rel="stylesheet" href="css/chatbot.css">
 </head>
 
-<body>
+<body class="landing-body">
 
-    <!-- NAVBAR -->
-    <nav class="navbar" id="mainNav">
+    <!-- ANIMATED WEBSITE INTRO / SPLASH SCREEN (Elevara-inspired Healthcare Animation) -->
+    <div id="wfSplashScreen" class="wf-splash-screen" role="dialog" aria-modal="true" aria-label="Welcome to Wellness Forever">
+        <div class="wf-splash-backdrop"></div>
+        <div class="wf-splash-glow wf-splash-glow-1"></div>
+        <div class="wf-splash-glow wf-splash-glow-2"></div>
+        
+        <div class="wf-splash-content">
+            <!-- Architectural Caduceus Model (Animated from Top to Bottom) -->
+            <div class="wf-splash-emblem-wrap">
+                <div class="wf-splash-pulse-ring"></div>
+                <div class="wf-splash-emblem">
+                    <svg class="wf-caduceus-model-svg" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="caduceusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#b8a5fe" />
+                                <stop offset="40%" stop-color="#818cf8" />
+                                <stop offset="75%" stop-color="#6366f1" />
+                                <stop offset="100%" stop-color="#4338ca" />
+                            </linearGradient>
+                            <filter id="caduceusGlow" x="-25%" y="-25%" width="150%" height="150%">
+                                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+
+                        <!-- Layer 1: Top Sphere Finial Knob -->
+                        <g class="cad-layer cad-layer-head">
+                            <circle cx="100" cy="24" r="11" fill="url(#caduceusGrad)" filter="url(#caduceusGlow)" />
+                        </g>
+
+                        <!-- Layer 2: Outstretched Symmetrical Wings with Curved Scalloped Feathers -->
+                        <g class="cad-layer cad-layer-wings">
+                            <!-- Left Wing (Pointed outer tip curving down with scalloped feathers) -->
+                            <path d="M 97 44 C 82 34 50 28 20 44 C 18 45 22 49 32 50 C 44 51 60 52 74 54 C 54 58 38 64 26 71 C 36 71 52 69 70 66 C 54 73 42 81 34 90 C 46 88 64 81 82 72 C 88 69 94 62 97 58 Z" 
+                                  fill="url(#caduceusGrad)" />
+                            <!-- Right Wing (Symmetric mirror) -->
+                            <path d="M 103 44 C 118 34 150 28 180 44 C 182 45 178 49 168 50 C 156 51 140 52 126 54 C 146 58 162 64 174 71 C 164 71 148 69 130 66 C 146 73 158 81 166 90 C 154 88 136 81 118 72 C 112 69 106 62 103 58 Z" 
+                                  fill="url(#caduceusGrad)" />
+                        </g>
+
+                        <!-- Layer 3: Central Straight Vertical Staff -->
+                        <g class="cad-layer cad-layer-staff">
+                            <!-- Straight central rod tapering to sharp pointed base -->
+                            <polygon points="97,25 103,25 102.5,212 100,232 97.5,212" fill="url(#caduceusGrad)" />
+                        </g>
+
+                        <!-- Layer 4: Inward-Facing Serpent Heads with Red Eye Accents -->
+                        <g class="cad-layer cad-layer-serpent-top">
+                            <!-- Left Snake Head & Throat Arch (under wing) -->
+                            <path d="M 95 95 C 93 84 81 83 72 87 C 62 92 60 102 65 110 C 72 119 86 123 99 124" 
+                                  stroke="url(#caduceusGrad)" stroke-width="8" stroke-linecap="round" fill="none" />
+                            <!-- Left Head Crest & Red Eye -->
+                            <path d="M 94 92 C 96 90 92 85 86 86 C 81 87 81 92 86 94 Z" fill="url(#caduceusGrad)" />
+                            <circle cx="90" cy="88" r="1.8" fill="#ef4444" />
+
+                            <!-- Right Snake Head & Throat Arch (under wing) -->
+                            <path d="M 105 95 C 107 84 119 83 128 87 C 138 92 140 102 135 110 C 128 119 114 123 101 124" 
+                                  stroke="url(#caduceusGrad)" stroke-width="8" stroke-linecap="round" fill="none" />
+                            <!-- Right Head Crest & Red Eye -->
+                            <path d="M 106 92 C 104 90 108 85 114 86 C 119 87 119 92 114 94 Z" fill="url(#caduceusGrad)" />
+                            <circle cx="110" cy="88" r="1.8" fill="#ef4444" />
+                        </g>
+
+                        <!-- Layer 5: Entwined Dual-Helix Coils Crossing Staff -->
+                        <g class="cad-layer cad-layer-serpent-mid">
+                            <!-- Crossing Loop 1 (upper-mid crossing around Y=125 - 150) -->
+                            <path d="M 99 124 C 114 125 128 132 128 142 C 128 152 115 158 100 160 C 85 162 72 168 72 178 C 72 188 85 194 99 196" 
+                                  stroke="url(#caduceusGrad)" stroke-width="8" stroke-linecap="round" fill="none" />
+                            <!-- Crossing Loop 2 (intertwined opposite snake) -->
+                            <path d="M 101 124 C 86 125 72 132 72 142 C 72 152 85 158 100 160 C 115 162 128 168 128 178 C 128 188 115 194 101 196" 
+                                  stroke="url(#caduceusGrad)" stroke-width="8" stroke-linecap="round" fill="none" />
+                        </g>
+
+                        <!-- Layer 6: Lower Entwined Coils & Symmetrical Tail Tips -->
+                        <g class="cad-layer cad-layer-serpent-bottom">
+                            <!-- Left Tail segment crossing down -->
+                            <path d="M 99 196 C 110 198 118 204 116 211 C 114 216 106 218 92 216 L 86 219" 
+                                  stroke="url(#caduceusGrad)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                            <!-- Right Tail segment crossing down -->
+                            <path d="M 101 196 C 90 198 82 204 84 211 C 86 216 94 218 108 216 L 114 219" 
+                                  stroke="url(#caduceusGrad)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Structured Brand Reveal & Tagline (Cascades down) -->
+            <div class="wf-splash-text">
+                <h1 class="wf-splash-title">
+                    <span class="wf-splash-model-icon">⚕️</span>
+                    <span class="wf-splash-name">Wellness Forever</span>
+                </h1>
+                <p class="wf-splash-tagline">Your Health, Our Priority</p>
+                <div class="wf-splash-loader-bar">
+                    <div class="wf-splash-loader-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional Skip Button for Accessibility -->
+        <button id="wfSplashSkipBtn" class="wf-splash-skip" aria-label="Skip introduction">Skip</button>
+    </div>
+
+    <!-- NAVBAR (Sticky with Modern Blur & Active State Tracking) -->
+    <nav class="navbar navbar-v2" id="mainNav">
         <div class="container nav-content">
             <a href="index.html" class="logo">⚕️ Wellness Forever</a>
-            <button class="hamburger" id="hamburger" aria-label="Toggle Menu">  
+            <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
                 <span></span><span></span><span></span>
             </button>
-            <ul class="nav-links" id="navLinks">
+            <ul class="nav-links nav-links-v2" id="navLinks">
                 <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="#specialties">Specialties</a></li>
+                <li><a href="#features">Experience</a></li>
+                <li><a href="#doctorDirectory">Find Doctors</a></li>
+                <li><a href="#howItWorks">How It Works</a></li>
                 <li><a href="appointments.html">My Appointments</a></li>
                 <li id="nav-admin-item"><a href="admin.html">Admin</a></li>
                 <li id="nav-auth-item">
@@ -32,73 +142,464 @@
         </div>
     </nav>
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-bg-circle c1"></div>
-        <div class="hero-bg-circle c2"></div>
-        <div class="container hero-content">
-            <div class="hero-text">
-                <span class="hero-tag">🏥 Trusted by 500+ Patients</span>
-                <h1>Your Health,<br><span class="gradient-text">Our Priority</span></h1>
-                <p>Book appointments with top-rated doctors in minutes. Quality healthcare made simple, fast and
-                    accessible.</p>
-                <div class="hero-stats">
-                    <div class="stat"><strong>10+</strong><span>Specialists</span></div>
-                    <div class="stat"><strong>250+</strong><span>Patients</span></div>
-                    <div class="stat"><strong>4.8★</strong><span>Avg Rating</span></div>
+    <!-- HERO SECTION (Cinematic Healthcare Layout & Interactive Preview) -->
+    <header class="hero-v2">
+        <div class="hero-v2-glow-1"></div>
+        <div class="hero-v2-glow-2"></div>
+        <div class="container hero-v2-grid">
+            <div class="hero-v2-text-col">
+                <div class="hero-badge-pill">
+                    <span class="pulse-dot"></span>
+                    <span>Direct Doctor Access • Instant Confirmation</span>
+                </div>
+                <h1 class="hero-v2-title">
+                    World-Class Care,<br>
+                    <span class="brand-gradient">Right When You Need It.</span>
+                </h1>
+                <p class="hero-v2-subtitle">
+                    Connect seamlessly with verified medical specialists. Choose from in-clinic visits or high-definition video consultations with zero wait time.
+                </p>
+                <div class="hero-v2-actions">
+                    <a href="#doctorDirectory" class="btn btn-primary btn-hero-primary">Find a Doctor</a>
+                    <a href="#howItWorks" class="btn btn-hero-secondary">How It Works</a>
+                </div>
+                <div class="hero-stats-row">
+                    <div class="hero-stat-item">
+                        <strong>10+</strong>
+                        <span>Specialties</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <strong>100%</strong>
+                        <span>Verified Doctors</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <strong>4.9★</strong>
+                        <span>Patient Trust</span>
+                    </div>
                 </div>
             </div>
-            <div class="hero-illustration">
-                <div class="hero-card-float">
-                    <div class="hc-icon">🩺</div>
-                    <div>
-                        <p class="hc-title">Book Instantly</p>
-                        <p class="hc-sub">No waiting. No queues.</p>
+
+            <!-- Hero Interactive Glass Showcase Card -->
+            <div class="hero-v2-visual">
+                <div class="hero-glass-card">
+                    <div class="hg-header">
+                        <span style="font-weight:700;font-size:0.92rem;color:var(--text-main);">⚡ Next Available Doctor</span>
+                        <span class="hg-status-chip">● Online Now</span>
+                    </div>
+                    <div class="hg-doctor-preview">
+                        <div class="hg-doc-avatar">👩‍⚕️</div>
+                        <div class="hg-doc-details">
+                            <h4>Dr. Priya Sharma</h4>
+                            <p>Dermatologist • 10 yrs exp</p>
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">
+                        Select Consultation Slot
+                    </p>
+                    <div class="hg-slot-pills">
+                        <div class="hg-slot-pill selected">10:00 AM</div>
+                        <div class="hg-slot-pill">11:30 AM</div>
+                        <div class="hg-slot-pill">02:00 PM</div>
+                    </div>
+                    <a href="#doctorDirectory" class="btn btn-primary btn-block" style="border-radius:var(--radius-pill);padding:11px;font-size:0.92rem;">
+                        View All Available Slots
+                    </a>
+                </div>
+                <div class="hg-floating-notif">
+                    <div class="hg-floating-notif-icon">✓</div>
+                    <div class="hg-floating-notif-text">
+                        <p>Appointment Confirmed</p>
+                        <span>Reminder sent to phone & email</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HORIZONTAL SPECIALTY CAROUSEL (Swipe, Drag & Arrow Navigation) -->
+    <section class="specialty-section" id="specialties">
+        <div class="container">
+            <div class="carousel-controls-wrapper">
+                <div>
+                    <span class="section-tag-pill">Medical Disciplines</span>
+                    <h2 class="section-title-large" style="margin-bottom:6px;">Browse by Specialty</h2>
+                    <p class="section-desc">Tap any department to instantly filter verified specialists.</p>
+                </div>
+                <div class="carousel-nav-arrows">
+                    <button class="carousel-arrow-btn" id="specPrevBtn" aria-label="Previous specialty">‹</button>
+                    <button class="carousel-arrow-btn" id="specNextBtn" aria-label="Next specialty">›</button>
+                </div>
+            </div>
+
+            <div class="specialty-track-container" id="specialtyTrackContainer">
+                <div class="specialty-track" id="specialtyTrack">
+                    <div class="specialty-card-v2" data-specialty="Cardiologist">
+                        <div class="spec-icon-box">❤️</div>
+                        <h3 class="spec-title-v2">Cardiology</h3>
+                        <span class="spec-count-v2">Heart & Vessels</span>
+                    </div>
+                    <div class="specialty-card-v2" data-specialty="Dermatologist">
+                        <div class="spec-icon-box">✨</div>
+                        <h3 class="spec-title-v2">Dermatology</h3>
+                        <span class="spec-count-v2">Skin & Hair Care</span>
+                    </div>
+                    <div class="specialty-card-v2" data-specialty="Pediatrician">
+                        <div class="spec-icon-box">🧸</div>
+                        <h3 class="spec-title-v2">Pediatrics</h3>
+                        <span class="spec-count-v2">Infant & Child Health</span>
+                    </div>
+                    <div class="specialty-card-v2" data-specialty="Neurologist">
+                        <div class="spec-icon-box">🧠</div>
+                        <h3 class="spec-title-v2">Neurology</h3>
+                        <span class="spec-count-v2">Brain & Nervous System</span>
+                    </div>
+                    <div class="specialty-card-v2" data-specialty="Orthopedist">
+                        <div class="spec-icon-box">🦴</div>
+                        <h3 class="spec-title-v2">Orthopedics</h3>
+                        <span class="spec-count-v2">Bones & Joints</span>
+                    </div>
+                    <div class="specialty-card-v2" data-specialty="General Physician">
+                        <div class="spec-icon-box">🩺</div>
+                        <h3 class="spec-title-v2">General Physician</h3>
+                        <span class="spec-count-v2">Family & Preventive Care</span>
+                    </div>
+                    <div class="specialty-card-v2" data-specialty="Gynecologist">
+                        <div class="spec-icon-box">🌸</div>
+                        <h3 class="spec-title-v2">Gynecology</h3>
+                        <span class="spec-count-v2">Women's Health</span>
+                    </div>
+                    <div class="specialty-card-v2" data-specialty="Ophthalmologist">
+                        <div class="spec-icon-box">👁️</div>
+                        <h3 class="spec-title-v2">Ophthalmology</h3>
+                        <span class="spec-count-v2">Vision & Eye Care</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- MAIN CONTENT -->
-    <main class="container main-content">
-        <!-- Search & Filter -->
-        <section class="search-section" aria-label="Search and filter doctors">
-            <div class="search-wrapper">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Search by name or specialization..."
-                    autocomplete="off">
-                <button class="clear-search hidden" id="clearSearch">✕</button>
+    <!-- LAYERED STICKY FEATURE PANELS (FraudLens-Inspired Overlapping Cards) -->
+    <section class="layered-features-section" id="features">
+        <div class="container">
+            <div class="section-header-center">
+                <span class="section-tag-pill">End-To-End Experience</span>
+                <h2 class="section-title-large">Engineered For Painless Healthcare</h2>
+                <p class="section-desc">
+                    Experience a connected clinical journey designed around your time, comfort, and peace of mind.
+                </p>
             </div>
-            <select id="specializationFilter">
-                <option value="">All Specializations</option>
-            </select>
-            <select id="sortFilter">
-                <option value="">Sort By</option>
-                <option value="rating">Highest Rated</option>
-                <option value="experience">Most Experienced</option>
-                <option value="fee-asc">Fee: Low to High</option>
-                <option value="fee-desc">Fee: High to Low</option>
-            </select>
-        </section>
 
-        <!-- Results Count -->
-        <p class="results-count" id="resultsCount"></p>
+            <div class="feature-cards-stack">
+                <!-- Layer 1: Effortless Scheduling -->
+                <div class="layered-card layered-card-1">
+                    <div class="layered-grid">
+                        <div>
+                            <span class="lc-badge">⚡ Instant Booking</span>
+                            <h3 class="lc-title">Zero Friction Scheduling in 3 Simple Steps</h3>
+                            <p class="lc-desc">
+                                Choose your preferred physician, compare verified ratings and fees transparently, and lock in your time slot with real-time double-booking prevention.
+                            </p>
+                            <ul class="lc-features-list">
+                                <li><span>✓</span> Real-time calendar availability updated live from doctor schedules</li>
+                                <li><span>✓</span> Immediate SMS & email confirmation receipts with reference IDs</li>
+                                <li><span>✓</span> Choice of In-Clinic visits or secure Video Consultations</li>
+                            </ul>
+                            <a href="#doctorDirectory" class="btn btn-primary" style="border-radius:var(--radius-pill);padding:12px 28px;box-shadow:0 8px 20px rgba(99,102,241,0.25);">Explore Doctors →</a>
+                        </div>
+                        <div class="lc-visual-mockup">
+                            <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9;padding-bottom:14px;margin-bottom:16px;">
+                                <strong style="color:#0f172a;font-size:0.95rem;">Appointment Summary</strong>
+                                <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:50px;font-size:0.75rem;font-weight:700;">CONFIRMED</span>
+                            </div>
+                            <p style="font-size:0.88rem;color:#64748b;margin-bottom:8px;">📅 Monday, 10:00 AM</p>
+                            <p style="font-size:0.88rem;color:#64748b;margin-bottom:8px;">🩺 In-Clinic Consultation</p>
+                            <p style="font-size:0.88rem;color:#64748b;">💰 Transparent Fee • No Hidden Costs</p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Doctors Grid -->
-        <div id="doctors-list" class="doctors-grid" role="list">
-            <div class="loading">
-                <div class="spinner"></div>
-                <span>Finding doctors near you…</span>
+                <!-- Layer 2: Medical Profile & Prescriptions -->
+                <div class="layered-card layered-card-2">
+                    <div class="layered-grid">
+                        <div>
+                            <span class="lc-badge">📋 Digital Health Records</span>
+                            <h3 class="lc-title">Your Private Medical History, Always Accessible</h3>
+                            <p class="lc-desc">
+                                Keep track of allergies, chronic conditions, and previous consultations. Doctors can review your profile before prescribing personalized care.
+                            </p>
+                            <ul class="lc-features-list">
+                                <li><span>✓</span> Private, patient-controlled health profiles and emergency contacts</li>
+                                <li><span>✓</span> Digital prescriptions and doctor consultation notes saved directly</li>
+                                <li><span>✓</span> Complete visit history with downloadable consultation receipts</li>
+                            </ul>
+                            <button type="button" class="btn btn-primary" onclick="openMedicalHistoryModal()" style="border-radius:var(--radius-pill);padding:12px 28px;box-shadow:0 8px 20px rgba(6,182,212,0.25);background:linear-gradient(135deg,#06b6d4,#0284c7);">Open Health Profile →</button>
+                        </div>
+                        <div class="lc-visual-mockup">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <div style="width:42px;height:42px;border-radius:12px;background:#e0f2fe;color:#0284c7;display:flex;align-items:center;justify-content:center;font-weight:800;">Rx</div>
+                                <div>
+                                    <strong style="color:#0f172a;font-size:0.92rem;display:block;">Digital Prescription</strong>
+                                    <span style="font-size:0.78rem;color:#64748b;">Certified by Wellness Forever</span>
+                                </div>
+                            </div>
+                            <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:12px;border-radius:12px;font-family:monospace;font-size:0.82rem;color:#1e293b;margin-bottom:10px;">
+                                • Amoxicillin 500mg (1-0-1 after food)<br>
+                                • Paracetamol 650mg SOS
+                            </div>
+                            <span style="font-size:0.75rem;color:#64748b;">🔒 Stored securely & accessible from My Appointments</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layer 3: Doctor Queues & Status Tracking -->
+                <div class="layered-card layered-card-3">
+                    <div class="layered-grid">
+                        <div>
+                            <span class="lc-badge">🔔 Smart Alerts & Control</span>
+                            <h3 class="lc-title">Stay Informed with Proactive Reminders</h3>
+                            <p class="lc-desc">
+                                Automated reminders notify you 1 hour before scheduled consultations. Seamlessly cancel or reschedule if your plans change without calling the clinic.
+                            </p>
+                            <ul class="lc-features-list">
+                                <li><span>✓</span> Automated reminders so you never miss an appointment</li>
+                                <li><span>✓</span> Easy one-click rescheduling to an open slot</li>
+                                <li><span>✓</span> Post-consultation rating & review system for trusted community feedback</li>
+                            </ul>
+                            <a href="appointments.html" class="btn btn-primary" style="border-radius:var(--radius-pill);padding:12px 28px;box-shadow:0 8px 20px rgba(236,72,153,0.25);background:linear-gradient(135deg,#ec4899,#db2777);">View My Appointments →</a>
+                        </div>
+                        <div class="lc-visual-mockup">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                                <div style="font-size:1.8rem;">🚨</div>
+                                <div>
+                                    <strong style="color:#0f172a;font-size:0.92rem;display:block;">Upcoming Visit Reminder</strong>
+                                    <span style="font-size:0.78rem;color:#64748b;">Starts in ~45 minutes</span>
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:8px;">
+                                <a href="appointments.html" class="btn btn-primary btn-sm" style="flex:1;text-align:center;box-shadow:0 6px 16px rgba(236,72,153,0.25);background:linear-gradient(135deg,#ec4899,#db2777);">Join Video Call</a>
+                                <a href="appointments.html" class="btn btn-outline btn-sm" style="flex:1;text-align:center;">Manage</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
+    </section>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="container footer-content">
-            <p class="logo" style="font-size:1.3rem;">⚕️ Wellness Forever</p>
-            <p>© 2026 Wellness Forever. All rights reserved. Created by Shekhar varekar </p>
+    <!-- DOCTOR DIRECTORY & INTERACTIVE SEARCH SECTION -->
+    <section class="directory-section" id="doctorDirectory">
+        <div class="container">
+            <div class="section-header-center" style="margin-bottom:32px;">
+                <span class="section-tag-pill">Verified Specialists</span>
+                <h2 class="section-title-large">Choose Your Healthcare Specialist</h2>
+                <p class="section-desc">Search by name, specialty, or clinic location. Filter and sort by fees or experience.</p>
+            </div>
+
+            <!-- Enhanced Search & Filter Bar -->
+            <div class="search-bar-v2" aria-label="Search and filter doctors">
+                <div class="search-input-col">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search doctor, specialty, or location..." autocomplete="off">
+                    <button class="clear-search hidden" id="clearSearch" aria-label="Clear Search">✕</button>
+                </div>
+                <div class="search-dropdown-col">
+                    <select id="specializationFilter" class="search-select-custom">
+                        <option value="">All Specializations</option>
+                    </select>
+                    <select id="sortFilter" class="search-select-custom">
+                        <option value="">Sort By</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="experience">Most Experienced</option>
+                        <option value="fee-asc">Fee: Low to High</option>
+                        <option value="fee-desc">Fee: High to Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dynamic Results Count -->
+            <p class="results-count" id="resultsCount"></p>
+
+            <!-- Doctors Grid (Loaded from API via existing script.js) -->
+            <div id="doctors-list" class="doctors-grid" role="list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Finding verified doctors near you…</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section class="how-it-works-section" id="howItWorks">
+        <div class="container">
+            <div class="section-header-center">
+                <span class="section-tag-pill">Quick Guide</span>
+                <h2 class="section-title-large">How Wellness Forever Works</h2>
+                <p class="section-desc">Book your consultation in three quick steps without waiting on hold.</p>
+            </div>
+
+            <div class="steps-timeline-grid">
+                <div class="step-card-v2">
+                    <div class="step-badge-number">1</div>
+                    <h3>Discover & Select</h3>
+                    <p>Browse verified specialists across 10+ disciplines with transparent fees, credentials, and real patient reviews.</p>
+                </div>
+                <div class="step-card-v2">
+                    <div class="step-badge-number">2</div>
+                    <h3>Choose Time & Mode</h3>
+                    <p>Pick an available slot that fits your schedule. Select between a physical clinic appointment or an online video consult.</p>
+                </div>
+                <div class="step-card-v2">
+                    <div class="step-badge-number">3</div>
+                    <h3>Consult & Recover</h3>
+                    <p>Attend your appointment, receive certified prescriptions and care advice, and easily book follow-ups when needed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST & CLINICAL QUALITY METRICS -->
+    <section class="trust-metrics-section">
+        <div class="container">
+            <div class="trust-banner-card">
+                <div class="trust-banner-content">
+                    <h2>Healthcare You Can Confidently Rely On</h2>
+                    <p>
+                        Every practitioner on Wellness Forever undergoes strict credential verification, hospital accreditation checks, and continuous review assessments.
+                    </p>
+                    <a href="#doctorDirectory" class="btn btn-outline" style="background:#fff;color:var(--primary);border-color:#fff;border-radius:var(--radius-pill);padding:12px 28px;">
+                        Book Consultation
+                    </a>
+                </div>
+                <div class="trust-stats-grid">
+                    <div class="trust-stat-box">
+                        <strong>100%</strong>
+                        <span>Licensed Specialists</span>
+                    </div>
+                    <div class="trust-stat-box">
+                        <strong>0 min</strong>
+                        <span>Waiting Queue</span>
+                    </div>
+                    <div class="trust-stat-box">
+                        <strong>24/7</strong>
+                        <span>Booking Availability</span>
+                    </div>
+                    <div class="trust-stat-box">
+                        <strong>4.9 / 5</strong>
+                        <span>Average Satisfaction</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FREQUENTLY ASKED QUESTIONS (Accordion) -->
+    <section class="faq-section" id="faq">
+        <div class="container">
+            <div class="section-header-center">
+                <span class="section-tag-pill">Common Inquiries</span>
+                <h2 class="section-title-large">Frequently Asked Questions</h2>
+                <p class="section-desc">Got questions about booking, payments, or consultations? We've got answers.</p>
+            </div>
+
+            <div class="faq-accordion-wrapper">
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button">
+                        <span>How do I book an appointment with a doctor?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Simply search for your required specialty or doctor in the directory above, click "Book Appointment", choose an available date and time slot, and confirm your patient information. You'll receive instant confirmation.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button">
+                        <span>Can I cancel or reschedule my appointment?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Yes! Go to the "My Appointments" page in the navigation bar. You can reschedule to any open slot or cancel your appointment at any time before your scheduled consultation.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button">
+                        <span>Are online video consultations available?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Yes, during booking you can choose between an In-Clinic Visit or a Video Consultation. Video consultations allow you to consult securely with your physician from home.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-trigger" type="button">
+                        <span>Is my medical profile and history secure?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Absolutely. Your medical details and prescriptions are kept completely private and are only accessible by you and the medical practitioner managing your care.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CALL TO ACTION (Cinematic Conversion Block) -->
+    <section class="final-cta-section">
+        <div class="container">
+            <div class="final-cta-card">
+                <h2>Ready to Prioritize Your Well-Being?</h2>
+                <p>Join hundreds of satisfied patients who trust Wellness Forever for timely, expert medical consultations.</p>
+                <div class="final-cta-actions">
+                    <a href="#doctorDirectory" class="btn btn-primary btn-hero-primary">Find Your Doctor Now</a>
+                    <a href="login.html" class="btn btn-outline" style="border-radius:var(--radius-pill);padding:14px 28px;">Sign In to Account</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER OVERHAUL -->
+    <footer class="footer-v2">
+        <div class="container">
+            <div class="footer-v2-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo" style="font-size:1.4rem;">⚕️ Wellness Forever</a>
+                    <p>Modern healthcare booking platform connecting patients with trusted, top-tier physicians and specialists across all disciplines.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#specialties">Specialties</a></li>
+                        <li><a href="#doctorDirectory">Find Doctors</a></li>
+                        <li><a href="appointments.html">My Appointments</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Portals</h4>
+                    <ul>
+                        <li><a href="login-patient.html">Patient Login</a></li>
+                        <li><a href="login-doctor.html">Doctor Portal</a></li>
+                        <li><a href="login-admin.html">Administrator</a></li>
+                        <li><a href="admin.html">System Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Support & Legal</h4>
+                    <ul>
+                        <li><a href="#faq">Frequently Asked Questions</a></li>
+                        <li><a href="mailto:support@wellnessforever.in">support@wellnessforever.in</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom-bar">
+                <span>© 2026 Wellness Forever. All rights reserved.</span>
+                <span>Created by Shekhar varekar</span>
+            </div>
         </div>
     </footer>
 
@@ -117,7 +618,7 @@
         </div>
     </div>
 
-    <!-- Medical History Modal (Patient fills their own profile) -->
+    <!-- Medical History Modal (Patient Profile) -->
     <div class="modal-overlay hidden" id="medHistoryModal">
         <div class="modal-box feature-modal-box">
             <div class="feature-modal-header">
@@ -202,9 +703,13 @@
         </div>
     </div>
 
+    <!-- Scripts (Preserving all core functionality, authentication, and features) -->
     <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/script.js"></script>
     <script src="js/features.js"></script>
+    <script src="js/landing.js"></script>
+    <script src="js/chatbot.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             updateNavForAuth();

@@ -15,6 +15,7 @@ const adminRoutes          = require('./routes/admin');
 const reviewRoutes         = require('./routes/reviews');
 const prescriptionRoutes   = require('./routes/prescriptions');
 const medicalHistoryRoutes = require('./routes/medicalHistory');
+const chatRoutes           = require('./routes/chat');
 const Appointment          = require('./models/Appointment');
 const { sendReminderEmail } = require('./utils/mailer');
 
@@ -32,6 +33,7 @@ app.use('/api/admin',           adminRoutes);
 app.use('/api/reviews',         reviewRoutes);
 app.use('/api/prescriptions',   prescriptionRoutes);
 app.use('/api/medical-history', medicalHistoryRoutes);
+app.use('/api/chat',            chatRoutes);
 
 // ── Health Check ────────────────────────────────────────
 app.get('/', (req, res) => {

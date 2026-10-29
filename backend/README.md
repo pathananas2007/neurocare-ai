@@ -84,3 +84,45 @@ Server runs at: http://localhost:5000
 | GET    | /api/admin/appointments | All appointments |
 | DELETE | /api/admin/appointments/all | Clear all |
 | GET    | /api/admin/patients | All patients |
+
+### AI Healthcare Assistant (Aura)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST   | /api/chat | Chat with Aura AI (supports Gemini/Groq, safe context, rate-limited) |
+| GET    | /api/chat/status | Health check for AI provider status & model |
+
+## Environment Variables
+Create a `.env` file in the `backend/` directory (see `.env.example`):
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/doctor-booking
+JWT_SECRET=your_jwt_secret_key
+
+# Email
+EMAIL_SERVICE=gmail
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+
+# AI Healthcare Assistant
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
+
+# Optional Groq fallback
+GROQ_API_KEY=your_groq_key_here
+GROQ_MODEL=llama-3.1-8b-instant
+```
+
+## Render Deployment Instructions
+1. In your Render Dashboard, select **New Web Service** and connect this repository.
+2. Set Root Directory to `backend`.
+3. Build Command: `npm install`
+4. Start Command: `node server.js`
+5. In **Environment Variables**, add:
+   - `PORT`: `5000` (or leave default Render port)
+   - `MONGO_URI`: Your MongoDB Atlas URI
+   - `JWT_SECRET`: A secure random string
+   - `AI_PROVIDER`: `gemini`
+   - `GEMINI_API_KEY`: Your Google Gemini API key from https://aistudio.google.com/
+   - `GEMINI_MODEL`: `gemini-1.5-flash`
+6. Deploy! The frontend will automatically route requests to `https://<your-render-app>.onrender.com/api`.
